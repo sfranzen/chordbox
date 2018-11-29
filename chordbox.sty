@@ -1,0 +1,110 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{chordbox}[2018/11/22 New package]
+
+\RequirePackage{tikz,xifthen}
+\usetikzlibrary{shapes.misc}
+
+\newif\ifcb@startbarre
+\newcounter{cb@numstrings}
+
+% Set up keys for the drawing code
+\pgfset{
+    /chordbox/.cd,
+    % This fills a bar of width 0.4 that scales properly, without requiring
+    % extra libraries
+    draw barre/.code 2 args={%
+        \fill (#1) -- +(0, -0.2) -| (#2) -- +(0, 0.2) -| cycle;
+    },
+    % The code that draws the chord box. The first argument specifies the first
+    % fret (>1) of the chord box, the second argument is the chord's name and
+    % the third the comma-separated list of finger positions.
+    @draw/.code n args={3}{%
+        \pgfkeys{chordbox/@basefret={#1}}
+        % Count strings, put coordinates at finger positions and above the
+        % frets (index 0), then draw the string grid and decorations
+        \foreach[count=\n] \fretpositions in {#3} {
+            \setcounter{cb@numstrings}{\n}
+            \foreach \fret in {0,...,4}
+                \coordinate (\n\fret) at (\n-1, 0.5-\fret);
+        }
+        \draw grid (\thecb@numstrings-1, -4);
+        \ifthenelse{\isempty{#1}\or#1<2}{% Draw the "nut"
+            \fill rectangle (\thecb@numstrings-1, .2);
+        }{% Draw the position indicator
+            \node[left] at (11) {fr\raisebox{.5ex}{\scriptsize#1}};
+        }
+        % Center chord name over strings
+        \pgfmathparse{0.5 * (\thecb@numstrings - 1)}
+        \node[above] at (\pgfmathresult, 1.25) {#2};
+        % Draw the string symbols according to argument #3
+        \foreach \fret [count=\s] in {#3} {
+            \ifnum\pdfmatch{^[0-9]}{\fret}=1
+                \ifnum\fret=0%
+                    \node[string=open] at (\s0) {};
+                \else%
+                    \pgfkeys{chordbox/@fretnum=\fret}
+                    \node[string=fretted] at (\s\fretnum) {};
+                \fi
+            \else % Anything other than a number is taken to mean "muted"
+                \node[string=muted] at (\s0) {};
+            \fi
+        }
+    },
+    % The base fret of a given chord box
+    @basefret/.initial=1,
+    % Calculate the given fret position #1, corrected for the base fret
+    @fretnum/.code=\pgfmathsetmacro{\fretnum}{%
+        1 + #1 - \pgfkeysvalueof{/chordbox/@basefret}
+    },
+    % Whether the barre has yet to be started
+    @start barre/.is if=cb@startbarre
+}
+
+% Define tikz drawing styles. The muted string symbol size is slightly smaller
+% to make it visually similar to the open symbol. Both are also placed above
+% their given coordinate for better separation from the box.
+\tikzset{
+    chordbox/.style={scale=0.25},
+    chordbox/.value forbidden,
+    string/.is choice,
+    string/base/.style={%
+        circle, draw, inner sep=0, minimum size=20, transform shape%
+    },
+    string/fretted/.style={string/base, fill},
+    string/open/.style={string/base, above},
+    string/muted/.style={string/open, cross out, minimum size=19}
+}
+
+% Draw a chord box without barres, for example:
+%   \chordbox{Am}{x,0,2,2,1,0}
+%   \chordbox[5]{A}{5,7,7,6,5,5}
+\providecommand{\chordbox}[3][1]{%
+    \begin{tikzpicture}[chordbox]
+        \pgfkeys{chordbox/@draw={#1}{#2}{#3}}
+    \end{tikzpicture}
+}
+
+% Draw a chord box for a barre chord. Extra argument for the fret number(s)
+% whose notes should be barred, for example:
+%   \bchordbox[3]{C}{x,3,5,5,5,3}{3,5}
+\providecommand{\bchordbox}[4][1]{%
+    \begin{tikzpicture}[chordbox]
+        \pgfkeys{chordbox/@draw={#1}{#2}{#3}}
+        \foreach \b in {#4} {
+            \pgfkeys{chordbox/.cd, @start barre=true, @fretnum=\b}
+            \foreach[count=\s] \f in {#3} {
+                \if\f\b%
+                    \ifcb@startbarre%
+                        \coordinate (start) at (\s\fretnum);
+                        \global\cb@startbarrefalse
+                    \else%
+                        \coordinate (end) at (\s\fretnum);
+                    \fi
+                \fi
+            }
+            \pgfkeys{chordbox/draw barre={start}{end}}
+        }
+    \end{tikzpicture}
+}
+
+\endinput
