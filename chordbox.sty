@@ -15,6 +15,8 @@
     draw barre/.code 2 args={%
         \fill (#1) -- +(0, -0.2) -| (#2) -- +(0, 0.2) -| cycle;
     },
+    % Number of frets displayed
+    numfrets/.initial=4,
     % The code that draws the chord box. The first argument specifies the first
     % fret (>1) of the chord box, the second argument is the chord's name and
     % the third the comma-separated list of finger positions.
@@ -24,10 +26,10 @@
         % frets (index 0), then draw the string grid and decorations
         \foreach[count=\n] \fretpositions in {#3} {
             \setcounter{cb@numstrings}{\n}
-            \foreach \fret in {0,...,4}
+            \foreach \fret in {0,...,\pgfkeysvalueof{/chordbox/numfrets}}
                 \coordinate (\n\fret) at (\n-1, 0.5-\fret);
         }
-        \draw grid (\thecb@numstrings-1, -4);
+        \draw grid (\thecb@numstrings-1, -\pgfkeysvalueof{/chordbox/numfrets});
         \ifthenelse{\isempty{#1}\or#1<2}{% Draw the "nut"
             \fill rectangle (\thecb@numstrings-1, .2);
         }{% Draw the position indicator
