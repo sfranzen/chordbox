@@ -155,7 +155,9 @@ and \texttt{\textbackslash sharp} as well as the \textasciicircum{}
 \end{tabular}
 
 For best results, make sure to select the same typeface for both text
-and math typesetting.
+and math typesetting. Of course, if you are also using the \texttt{leadsheets}
+package, you could opt to use its \texttt{\textbackslash writechord}
+command for typesetting chord names, see also subsection \ref{subsec:Other-keys}.
 
 The \textlangle \emph{base fret}\textrangle{} is the number that,
 although formally an optional argument, must be provided for chords
@@ -237,18 +239,18 @@ above\}})
 cross out, minimum size=19\}})
 \end{description}
 
-\subsection{Other keys}
+\subsection{Other keys\label{subsec:Other-keys}}
 
 The following keys are not passed directly to \TikZ{} commands, but
-used to store global values. They are all in the \texttt{/chordbox}
+used to store global settings. They are all in the \texttt{/chordbox}
 path and should be set using the \texttt{\textbackslash pgfset} command,
-for example \texttt{\textbackslash pgfset\{/chordbox/numfrets=5\}}.
+for example \texttt{\textbackslash pgfset\{/chordbox/name/.code=\textbackslash writechord\{\#1\}\}}.
 \begin{description}
 \item [{/chordbox/numfrets\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}number}}}\texttt{\textcolor{black}{\small{}\textrangle{}}}}] \hfill{}(initially
 \texttt{4}) \\
 The number of frets drawn in each chord box.
 \item [{/chordbox/name\label{/chordbox/name}}] \hfill{}(initially \texttt{\textbackslash ensuremath\{\textbackslash mathrm\{\#1\}\}})\\
-The command that is used to typeset the name of the chord.
+The code that is used to typeset the name of the chord.
 \end{description}
 
 \appendix
