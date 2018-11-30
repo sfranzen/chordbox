@@ -15,8 +15,12 @@
     draw barre/.code 2 args={%
         \fill (#1) -- +(0, -0.2) -| (#2) -- +(0, 0.2) -| cycle;
     },
+    draw barre/.value required,
     % Number of frets displayed
     numfrets/.initial=4,
+    % Chord name parser
+    name/.code=\ensuremath{\mathrm{#1}},
+    name/.value required,
     % The code that draws the chord box. The first argument specifies the first
     % fret (>1) of the chord box, the second argument is the chord's name and
     % the third the comma-separated list of finger positions.
@@ -37,7 +41,7 @@
         }
         % Center chord name over strings
         \pgfmathparse{0.5 * (\thecb@numstrings - 1)}
-        \node[above] at (\pgfmathresult, 1.25) {#2};
+        \node[above] at (\pgfmathresult, 1.25) {\pgfkeys{chordbox/name={#2}}};
         % Draw the string symbols according to argument #3
         \foreach \fret [count=\s] in {#3} {
             \ifnum\pdfmatch{^[0-9]}{\fret}=1

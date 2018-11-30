@@ -67,7 +67,7 @@
 \usepackage[bibstyle=standard,citestyle=authortitle-comp]{biblatex}
 \addbibresource{chordbox.bib}
 \begin{document}
-\titlehead{\centering\chordbox[3]{$\mathrm{G\sharp^{maj7}}$}{4,x,6,5,4,3}}
+\titlehead{\centering\chordbox[3]{G\sharp^{maj7}}{4,x,6,5,4,3}}
 \title{Chordbox}
 \subtitle{A \LaTeX{} package for drawing string instrument chord diagrams}
 \author{Steven Franzen}
@@ -125,15 +125,16 @@ fret}\textrangle \texttt{{]}\{}\textlangle \emph{chord name}\textrangle\texttt{\
 positions}\textrangle\texttt{\}}
 
 The simplest form of the command requires you to specify only the
-name of the chord and its fingering, which should be a comma-separated
-list of elements, one for each string. Each of these may have the
-following values: a positive number for a fretted string, 0 for an
-open string, or anything else for a muted string. It draws a grid
-resembling the (vertical) strings over four horizontal frets, with
-a black bar at the top figuring as the instrument's nut. The number
-of strings drawn is determined by the number of \emph{fret positions}
-passed to the command, so generating chord diagrams for different
-instruments is no problem:
+\textlangle \emph{chord name}\textrangle{} and \textlangle \emph{fret
+positions}\textrangle . The former can contain any text and math symbols
+(see below), the latter should be a comma-separated list of elements,
+one for each string. Each of these is interpreted as follows: a positive
+number as a fretted string, the number 0 as an open string and anything
+else as a muted string. It draws a grid resembling the (vertical)
+strings over four horizontal frets, with a black bar at the top figuring
+as the instrument's nut. The number of strings drawn is determined
+by the number of \emph{fret positions} passed to the command, so generating
+chord diagrams for different instruments is no problem:
 
 \begin{tabular}{ccc}
 Ukulele & 5-string banjo & 6-string guitar\tabularnewline
@@ -141,12 +142,28 @@ Ukulele & 5-string banjo & 6-string guitar\tabularnewline
 \chordbox{Am}{2,0,0,0} & \chordbox{Am}{x,2,2,1,2} & \chordbox{Am}{x,0,2,2,1,0}\tabularnewline
 \end{tabular}
 
-The \emph{base fret} number, although formally an optional argument,
-must be provided for chords extending past the fourth fret. It is
-used to position the chord box and fretted notes relative to this
-fret, for example \texttt{\textbackslash chordbox{[}6{]}\{D\textbackslash\#m7b5\}\{x,6,7,6,7,x\}}:
+By default, the \textlangle \emph{chord name}\textrangle{} is processed
+by a command that typesets it in math mode, in roman font (see \texttt{\nameref{/chordbox/name}}).
+This allows the use of math symbols like \texttt{\textbackslash flat}
+and \texttt{\textbackslash sharp} as well as the \textasciicircum{}
+(superscript) operator to typeset decorated chord names:
 
-\chordbox[6]{D\#m7b5}{x,6,7,6,7,x}
+\begin{tabular}{cc}
+\texttt{\small{}\textbackslash chordbox\{B\textbackslash flat m\}\{x,x,x,3,2,1\}} & \texttt{\small{}\textbackslash chordbox\{F\textbackslash sharp\textasciicircum\{maj7\}\}\{2,x,3,3,2,x\}}\tabularnewline
+\chordbox{B\flat m}{x,x,x,3,2,1} & \chordbox{F\sharp^{maj7}}{2,x,3,3,2,x}\tabularnewline
+\end{tabular}
+
+For best results, make sure to select the same typeface for both text
+and math typesetting.
+
+The \textlangle \emph{base fret}\textrangle{} is the number that,
+although formally an optional argument, must be provided for chords
+extending past the number of frets in the chord box. It is used to
+position the box and fretted notes relative to this fret, for example
+\texttt{\textbackslash chordbox{[}6{]}\{D\textbackslash sharp m\textasciicircum\{7\textbackslash flat
+5\}\}\{x,6,7,6,7,x\}}:
+
+\chordbox[6]{D\sharp m^{7\flat 5}}{x,6,7,6,7,x}
 
 As can be seen, the nut is not drawn in these cases.
 
@@ -160,10 +177,10 @@ As mentioned, this command is for drawing barre chords, for which
 it requires an additional comma-separated list of fret numbers. A
 thick line is drawn over the string symbols at these frets. The other
 arguments are identical to those of \texttt{\textbackslash chordbox},
-see for example \texttt{\textbackslash bchordbox\{Bm7\}\{x,2,4,2,3,2\}\{2\}}
+see for example \texttt{\textbackslash bchordbox\{Bm\textasciicircum 7\}\{x,2,4,2,3,2\}\{2\}}
 and \texttt{\textbackslash bchordbox{[}3{]}\{C\}\{x,3,5,5,5,3\}\{3,5\}}:
 
-\bchordbox{Bm7}{x,2,4,2,3,2}{2} \bchordbox[3]{C}{x,3,5,5,5,3}{3,5}
+\bchordbox{Bm^7}{x,2,4,2,3,2}{2} \bchordbox[3]{C}{x,3,5,5,5,3}{3,5}
 
 \section{Settings}
 
@@ -227,6 +244,8 @@ for example \texttt{\textbackslash pgfset\{/chordbox/numfrets=5\}}.
 \begin{description}
 \item [{/chordbox/numfrets}] (value, initially \texttt{4}) \\
 The number of frets drawn in each chord box.
+\item [{/chordbox/name\label{/chordbox/name}}] (code, initially \texttt{\textbackslash ensuremath\{\textbackslash mathrm\{\#1\}\}})\\
+The command that is used to typeset the name of the chord.
 \end{description}
 
 \appendix
