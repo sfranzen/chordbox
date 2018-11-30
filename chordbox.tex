@@ -1,0 +1,235 @@
+%% LyX 2.3.1 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{scrartcl}
+\usepackage[osf]{libertineRoman}
+\usepackage[osf]{biolinum}
+\renewcommand{\ttdefault}{cmtt}
+\usepackage[libertine]{newtxmath}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\setcounter{tocdepth}{2}
+\usepackage{babel}
+\usepackage{textcomp}
+\usepackage{url}
+\usepackage{microtype}
+\usepackage[unicode=true,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{pdftitle={Chordbox v0.1 Documentation}}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+\newcommand{\noun}[1]{\textsc{#1}}
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\usepackage{chordbox}
+\usepackage{filecontents}
+\setkomafont{descriptionlabel}{\ttfamily\color{red}}
+\newcommand\TikZ{Ti\emph{k}Z}
+
+\begin{filecontents}{chordbox.bib}
+@software{leadsheets,
+ 	author = {Clemens Niederberger},
+  	title = {leadsheets},
+  	url = {https://ctan.org/pkg/leadsheets/},
+  	version = {0.5b},
+  	date = {2017-09-26},
+}
+@software{guitarchordschemes,
+ 	author = {Clemens Niederberger},
+  	title = {guitarchordschemes},
+  	url = {https://ctan.org/pkg/guitarchordschemes/},
+  	version = {0.7},
+  	date = {2016-08-16},
+}
+@software{gchords,
+ 	author = {Kasper Peeters},
+  	title = {gchords},
+  	url = {https://ctan.org/pkg/gchords/},
+  	version = {1.20},
+  	date = {2008-02-03},
+}
+@manual{pgfmanual,
+   author    = {Till Tantau},
+   title     = {The TikZ and PGF Packages},
+   subtitle  = {Manual for version 3.0.1a},
+   url       = {http://sourceforge.net/projects/pgf/},
+   date      = {2015-08-29},
+}
+\end{filecontents}
+
+\makeatother
+
+\usepackage[bibstyle=standard,citestyle=authortitle-comp]{biblatex}
+\addbibresource{chordbox.bib}
+\begin{document}
+\titlehead{\centering\chordbox[3]{$\mathrm{G\sharp^{maj7}}$}{4,x,6,5,4,3}}
+\title{Chordbox}
+\subtitle{A \LaTeX{} package for drawing string instrument chord diagrams}
+\author{Steven Franzen}
+\date{v0.1\quad{}\today}
+\publishers{\url{https://github.com/sfranzen/chordbox}}
+
+\maketitle
+\tableofcontents{}
+
+\clearpage{}
+
+\section{Package introduction}
+
+This package is the result of a search similar to the one undertaken
+by Clemens Niederberger for his \texttt{leadsheets} \autocite{leadsheets}
+package: over the years I have collected many textual guitar tabs
+and chord sheets that I finally wanted to put together and typeset
+properly using \LaTeX , including guitar chord diagrams. The first
+part of my requirements is now more than fulfilled by \texttt{leadsheets},
+which provides all the tools for putting together chords and lyrics.
+For the second part I found that there were only two relevant existing
+packages: \texttt{guitarchordschemes}\autocite{guitarchordschemes}
+and \texttt{gchords}\autocite{gchords}. Neither of these achieved
+exactly what I wanted, so this package is my own attempt at providing
+that tool. It is a short collection of \TikZ{} code snippets, wrapped
+in two \LaTeX{} commands that are easy to use, with several options
+available to customise their output.
+
+\subsection{License}
+
+This work may be distributed and/or modified under the conditions
+of the \LaTeX{} Project Public License, either version 1.3 of this
+license or (at your option) any later version. The latest version
+of this license is in \url{http://www.latex-project.org/lppl.txt}
+and version 1.3 or later is part of all distributions of \LaTeX{} version
+2005/12/01 or later.
+
+\subsection{Loading the package}
+
+\texttt{chordbox} currently does not support \LaTeX{} options, so it
+is loaded simply with:
+
+\texttt{\textbackslash usepackage\{chordbox\}}
+
+\section{Usage}
+
+The package provides two similar commands, \texttt{\textbackslash chordbox}
+and \texttt{\textbackslash bchordbox}. The latter extends the former
+to draw barred chords.
+
+\subsection{The \texttt{\textbackslash chordbox} command}
+
+Syntax: \texttt{\textbackslash chordbox{[}}\textlangle \emph{base
+fret}\textrangle \texttt{{]}\{}\textlangle \emph{chord name}\textrangle\texttt{\}\{}\textlangle \emph{fret
+positions}\textrangle\texttt{\}}
+
+The simplest form of the command requires you to specify only the
+name of the chord and its fingering, which should be a comma-separated
+list of elements, one for each string. Each of these may have the
+following values: a positive number for a fretted string, 0 for an
+open string, or anything else for a muted string. It draws a grid
+resembling the (vertical) strings over four horizontal frets, with
+a black bar at the top figuring as the instrument's nut. The number
+of strings drawn is determined by the number of \emph{fret positions}
+passed to the command, so generating chord diagrams for different
+instruments is no problem:
+
+\begin{tabular}{ccc}
+Ukulele & 5-string banjo & 6-string guitar\tabularnewline
+\texttt{\small{}\textbackslash chordbox\{Am\}\{2,0,0,0\}} & \texttt{\small{}\textbackslash chordbox\{Am\}\{x,2,2,1,2\}} & \texttt{\small{}\textbackslash chordbox\{Am\}\{x,0,2,2,1,0\}}\tabularnewline
+\chordbox{Am}{2,0,0,0} & \chordbox{Am}{x,2,2,1,2} & \chordbox{Am}{x,0,2,2,1,0}\tabularnewline
+\end{tabular}
+
+The \emph{base fret} number, although formally an optional argument,
+must be provided for chords extending past the fourth fret. It is
+used to position the chord box and fretted notes relative to this
+fret, for example \texttt{\textbackslash chordbox{[}6{]}\{D\textbackslash\#m7b5\}\{x,6,7,6,7,x\}}:
+
+\chordbox[6]{D\#m7b5}{x,6,7,6,7,x}
+
+As can be seen, the nut is not drawn in these cases.
+
+\subsection{The \texttt{\textbackslash bchordbox} command}
+
+Syntax: \texttt{\textbackslash bchordbox{[}}\textlangle \emph{base
+fret}\textrangle \texttt{{]}\{}\textlangle \emph{chord name}\textrangle\texttt{\}\{}\textlangle \emph{fret
+positions}\textrangle\texttt{\}\{}\textlangle \emph{barre frets}\textrangle\texttt{\}}
+
+As mentioned, this command is for drawing barre chords, for which
+it requires an additional comma-separated list of fret numbers. A
+thick line is drawn over the string symbols at these frets. The other
+arguments are identical to those of \texttt{\textbackslash chordbox},
+see for example \texttt{\textbackslash bchordbox\{Bm7\}\{x,2,4,2,3,2\}\{2\}}
+and \texttt{\textbackslash bchordbox{[}3{]}\{C\}\{x,3,5,5,5,3\}\{3,5\}}:
+
+\bchordbox{Bm7}{x,2,4,2,3,2}{2} \bchordbox[3]{C}{x,3,5,5,5,3}{3,5}
+
+\section{Settings}
+
+Because \texttt{chordbox} relies on \noun{pgf}/\TikZ{} for drawing,
+it makes sense to use the powerful \noun{pgf} key management system
+that comes with it. Therefore this package stores its code and style
+settings as keys, some of which may be modified to customise the output.
+This can be done anywhere in the preamble or document by means of
+the the \texttt{\textbackslash pgfset} and \texttt{\textbackslash tikzset}
+commands. Some examples of usage will be given below, but for more
+reading about \noun{pgf} keys and their handling please refer to Section
+82 of the \noun{pgf} manual\autocite{pgfmanual} where everything
+is documented in full detail. In any case, modifying a key stores
+its value for the \LaTeX{} group where the command is issued and its
+child groups, which can override it again, but it does not propagate
+up to parent groups.
+
+\subsection{\TikZ{} keys}
+
+The items described in this section are called \emph{styles} in \TikZ{}
+terminology and contain various (lists of) keys and values that can
+be applied to various drawing commands. Most importantly, the \texttt{chordbox}
+style applies to the whole \texttt{\{tikzpicture\}} environment of
+every chord box produced. The default setting is to scale all coordinates
+by a quarter, because the drawing is done in \noun{pgf}'s ``natural''
+units that, though convenient to use, result in an impractically large
+picture. Note that this scaling only influences the \TikZ{} components;
+in particular, fonts are not affected.
+
+Because these keys are all stored in the \texttt{/tikz} path, it is
+most convenient to change them using the \texttt{\textbackslash tikzset}
+command, for example \texttt{\textbackslash tikzset\{chordbox/.style=\{scale=0.4,
+thick\}\}}.
+\begin{description}
+\item [{/tikz/chordbox}] (style, initially \texttt{\{scale=0.25\}})\\
+This style is applied to every \texttt{\{tikzpicture\}} environment
+produced by this package.
+\end{description}
+The rest of the styles define the three symbol shapes used for the
+fretted (\tikz[chordbox]\coordinate[string=fretted];), open (\tikz[chordbox]\coordinate[string=open];)
+and muted (\tikz[chordbox]\coordinate[string=muted];) string positions.
+\begin{description}
+\item [{/tikz/string/base}] (style, initially \texttt{\{circle, draw, inner
+sep=0, minimum size=20, transform shape\}})\\
+Common options for all three symbols. The \texttt{transform shape}
+option is required to correctly scale the symbols, which are implemented
+as \TikZ{} nodes, with the rest of the picture.
+\item [{/tikz/string/fretted}] (style, initially \texttt{\{string/base,
+fill\}})
+\item [{/tikz/string/open}] (style, initially \texttt{\{string/base, above\}})
+\item [{/tikz/string/muted}] (style, initially \texttt{\{string/open, cross
+out, minimum size=19\}})
+\end{description}
+
+\subsection{Other keys}
+
+The following keys are not passed directly to \TikZ{} commands, but
+used to store global values. They are all in the \texttt{/chordbox}
+path and should be set using the \texttt{\textbackslash pgfset} command,
+for example \texttt{\textbackslash pgfset\{/chordbox/numfrets=5\}}.
+\begin{description}
+\item [{/chordbox/numfrets}] (value, initially \texttt{4}) \\
+The number of frets drawn in each chord box.
+\end{description}
+
+\appendix
+\printbibliography[heading=bibintoc]
+
+\end{document}
