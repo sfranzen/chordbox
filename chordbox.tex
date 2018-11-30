@@ -8,6 +8,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[latin9]{inputenc}
 \setcounter{tocdepth}{2}
+\usepackage{color}
 \usepackage{babel}
 \usepackage{textcomp}
 \usepackage{url}
@@ -215,7 +216,7 @@ most convenient to change them using the \texttt{\textbackslash tikzset}
 command, for example \texttt{\textbackslash tikzset\{chordbox/.style=\{scale=0.4,
 thick\}\}}.
 \begin{description}
-\item [{/tikz/chordbox}] (style, initially \texttt{\{scale=0.25\}})\\
+\item [{/tikz/chordbox}] \hfill{}(style, initially \texttt{\{scale=0.25\}})\\
 This style is applied to every \texttt{\{tikzpicture\}} environment
 produced by this package.
 \end{description}
@@ -223,16 +224,17 @@ The rest of the styles define the three symbol shapes used for the
 fretted (\tikz[chordbox]\coordinate[string=fretted];), open (\tikz[chordbox]\coordinate[string=open];)
 and muted (\tikz[chordbox]\coordinate[string=muted];) string positions.
 \begin{description}
-\item [{/tikz/string/base}] (style, initially \texttt{\{circle, draw, inner
-sep=0, minimum size=20, transform shape\}})\\
+\item [{/tikz/string/base}] \hfill{}(style, initially \texttt{\{circle,
+draw, inner sep=0, minimum size=20, transform shape\}})\\
 Common options for all three symbols. The \texttt{transform shape}
 option is required to correctly scale the symbols, which are implemented
 as \TikZ{} nodes, with the rest of the picture.
-\item [{/tikz/string/fretted}] (style, initially \texttt{\{string/base,
+\item [{/tikz/string/fretted}] \hfill{}(style, initially \texttt{\{string/base,
 fill\}})
-\item [{/tikz/string/open}] (style, initially \texttt{\{string/base, above\}})
-\item [{/tikz/string/muted}] (style, initially \texttt{\{string/open, cross
-out, minimum size=19\}})
+\item [{/tikz/string/open}] \hfill{}(style, initially \texttt{\{string/base,
+above\}})
+\item [{/tikz/string/muted}] \hfill{}(style, initially \texttt{\{string/open,
+cross out, minimum size=19\}})
 \end{description}
 
 \subsection{Other keys}
@@ -242,9 +244,10 @@ used to store global values. They are all in the \texttt{/chordbox}
 path and should be set using the \texttt{\textbackslash pgfset} command,
 for example \texttt{\textbackslash pgfset\{/chordbox/numfrets=5\}}.
 \begin{description}
-\item [{/chordbox/numfrets}] (value, initially \texttt{4}) \\
+\item [{/chordbox/numfrets\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}number}}}\texttt{\textcolor{black}{\small{}\textrangle{}}}}] \hfill{}(initially
+\texttt{4}) \\
 The number of frets drawn in each chord box.
-\item [{/chordbox/name\label{/chordbox/name}}] (code, initially \texttt{\textbackslash ensuremath\{\textbackslash mathrm\{\#1\}\}})\\
+\item [{/chordbox/name\label{/chordbox/name}}] \hfill{}(initially \texttt{\textbackslash ensuremath\{\textbackslash mathrm\{\#1\}\}})\\
 The command that is used to typeset the name of the chord.
 \end{description}
 
