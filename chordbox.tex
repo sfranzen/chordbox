@@ -97,6 +97,14 @@ that tool. It is a short collection of \TikZ{} code snippets, wrapped
 in two \LaTeX{} commands that are easy to use, with several options
 available to customise their output.
 
+\subsection{Loading the package}
+
+\texttt{chordbox} currently does not support \LaTeX{} options, so it
+is loaded simply by putting
+
+\texttt{\textbackslash usepackage\{chordbox\}}\\
+in your document's preamble.
+
 \subsection{License}
 
 This file is part of chordbox. Chordbox may be distributed and/or
@@ -108,13 +116,6 @@ and version 1.3 or later is part of all distributions of \LaTeX{} version
 
 Chordbox has the \noun{lppl} maintenance status `maintained'. The
 Current Maintainer of chordbox is Steven Franzen.
-
-\subsection{Loading the package}
-
-\texttt{chordbox} currently does not support \LaTeX{} options, so it
-is loaded simply with:
-
-\texttt{\textbackslash usepackage\{chordbox\}}
 
 \section{Usage}
 
@@ -137,8 +138,9 @@ number as a fretted string, the number 0 as an open string and anything
 else as a muted string. It draws a grid resembling the (vertical)
 strings over four horizontal frets, with a black bar at the top figuring
 as the instrument's nut. The number of strings drawn is determined
-by the number of \emph{fret positions} passed to the command, so generating
-chord diagrams for different instruments is no problem:
+by the number of \textlangle \emph{fret positions}\textrangle{} passed
+to the command, so generating chord diagrams for different instruments
+is no problem:
 
 \begin{tabular}{ccc}
 Ukulele & 5-string banjo & 6-string guitar\tabularnewline
