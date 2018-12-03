@@ -39,10 +39,10 @@
     name/.code=\ensuremath{\mathrm{#1}},
     name/.value required,
     % Configuration of finger position text
-    fingering text/on node/.is if=cb@textonnode,
-    fingering text/on node=false,
-    fingering text/below/.is if=cb@textbelow,
-    fingering text/below=true,
+    fingering text/.is choice,
+    fingering text/on node/.code={\def\cb@fingeringtext{0}},
+    fingering text/below/.code={\def\cb@fingeringtext{1}},
+    fingering text/below,
     % The code that draws the chord box. Argument #1 specifies the base fret
     % (>1) of the chord box, #2 is the chord name and #3 the comma-separated
     % list of finger positions, e.g. {x,0,2:2,2:3,1:1,0}.
@@ -73,8 +73,8 @@
                 \else%
                     \pgfkeys{chordbox/@fretnum=\num}
                     \node[string=fretted, fret node text] at (\s\fretnum)
-                        {\ifcb@textonnode\StrBehind{\fret}{:}\fi};
-                    \ifcb@textbelow%
+                        {\if0\cb@fingeringtext\StrBehind{\fret}{:}\fi};
+                    \if1\cb@fingeringtext%
                         \node[below]
                             at (\s-1, -\pgfkeysvalueof{/chordbox/numfrets})
                             {\StrBehind{\fret}{:}};
