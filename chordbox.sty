@@ -35,7 +35,6 @@
     draw barre/.value required,
     % Number of frets displayed
     numfrets/.initial=4,
-    numfrets/.forward to=/chordbox/@setmaxcoord,
     % Chord name parser
     name/.code=\ensuremath{\mathrm{#1}},
     name/.value required,
@@ -53,7 +52,7 @@
         % frets (index 0), then draw the string grid and decorations
         \foreach[count=\n] \fretpositions in {#3} {
             \setcounter{cb@numstrings}{\n}
-            \foreach \fret in {0,...,\pgfkeysvalueof{/chordbox/@maxcoord}}
+            \foreach \fret in {0,...,\pgfkeysvalueof{/chordbox/numfrets}}
                 \coordinate (\n\fret) at (\n-1, 0.5-\fret);
         }
         \draw grid (\thecb@numstrings-1, -\pgfkeysvalueof{/chordbox/numfrets});
@@ -76,7 +75,8 @@
                     \node[string=fretted, fret node text] at (\s\fretnum)
                         {\ifcb@textonnode\StrBehind{\fret}{:}\fi};
                     \ifcb@textbelow%
-                        \node at (\s\pgfkeysvalueof{/chordbox/@maxcoord})
+                        \node[below]
+                            at (\s-1, -\pgfkeysvalueof{/chordbox/numfrets})
                             {\StrBehind{\fret}{:}};
                     \fi
                 \fi
@@ -90,12 +90,6 @@
     % Calculate the given fret position #1, corrected for the base fret
     @fretnum/.code=\pgfmathsetmacro{\fretnum}{%
         1 + #1 - \pgfkeysvalueof{/chordbox/@basefret}
-    },
-    % Maximum coordinate position on each string
-    @maxcoord/.initial=5,
-    @setmaxcoord/.code={%
-        \pgfmathparse{#1+1}
-        \pgfkeys{/chordbox/@maxcoord/.expand once=\pgfmathresult}
     },
     % Whether the barre has yet to be started
     @start barre/.is if=cb@startbarre
