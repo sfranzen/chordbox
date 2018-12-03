@@ -16,10 +16,12 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{chordbox}[2018/12/01 v0.1 Initial release]
 
-\RequirePackage{tikz,xifthen}
-\usetikzlibrary{shapes.misc}
+\RequirePackage{tikz, xifthen, xstring}
+\usetikzlibrary{shapes.misc, scopes, backgrounds}
 
 \newif\ifcb@startbarre
+\newif\ifcb@textonnode
+\newif\ifcb@textbelow
 \newcounter{cb@numstrings}
 
 % Set up keys for the drawing code
@@ -33,19 +35,25 @@
     draw barre/.value required,
     % Number of frets displayed
     numfrets/.initial=4,
+    numfrets/.forward to=/chordbox/@setmaxcoord,
     % Chord name parser
     name/.code=\ensuremath{\mathrm{#1}},
     name/.value required,
-    % The code that draws the chord box. The first argument specifies the first
-    % fret (>1) of the chord box, the second argument is the chord's name and
-    % the third the comma-separated list of finger positions.
+    % Configuration of finger position text
+    fingering text/on node/.is if=cb@textonnode,
+    fingering text/on node=false,
+    fingering text/below/.is if=cb@textbelow,
+    fingering text/below=true,
+    % The code that draws the chord box. Argument #1 specifies the base fret
+    % (>1) of the chord box, #2 is the chord name and #3 the comma-separated
+    % list of finger positions, e.g. {x,0,2:2,2:3,1:1,0}.
     @draw/.code n args={3}{%
         \pgfkeys{chordbox/@basefret={#1}}
         % Count strings, put coordinates at finger positions and above the
         % frets (index 0), then draw the string grid and decorations
         \foreach[count=\n] \fretpositions in {#3} {
             \setcounter{cb@numstrings}{\n}
-            \foreach \fret in {0,...,\pgfkeysvalueof{/chordbox/numfrets}}
+            \foreach \fret in {0,...,\pgfkeysvalueof{/chordbox/@maxcoord}}
                 \coordinate (\n\fret) at (\n-1, 0.5-\fret);
         }
         \draw grid (\thecb@numstrings-1, -\pgfkeysvalueof{/chordbox/numfrets});
@@ -60,11 +68,17 @@
         % Draw the string symbols according to argument #3
         \foreach \fret [count=\s] in {#3} {
             \ifnum\pdfmatch{^[0-9]}{\fret}=1
-                \ifnum\fret=0%
+                \StrBehind{\pdflastmatch 0}{>}[\num]
+                \ifnum\num=0%
                     \node[string=open] at (\s0) {};
                 \else%
-                    \pgfkeys{chordbox/@fretnum=\fret}
-                    \node[string=fretted] at (\s\fretnum) {};
+                    \pgfkeys{chordbox/@fretnum=\num}
+                    \node[string=fretted, fret node text] at (\s\fretnum)
+                        {\ifcb@textonnode\StrBehind{\fret}{:}\fi};
+                    \ifcb@textbelow%
+                        \node at (\s\pgfkeysvalueof{/chordbox/@maxcoord})
+                            {\StrBehind{\fret}{:}};
+                    \fi
                 \fi
             \else % Anything other than a number is taken to mean "muted"
                 \node[string=muted] at (\s0) {};
@@ -77,6 +91,12 @@
     @fretnum/.code=\pgfmathsetmacro{\fretnum}{%
         1 + #1 - \pgfkeysvalueof{/chordbox/@basefret}
     },
+    % Maximum coordinate position on each string
+    @maxcoord/.initial=5,
+    @setmaxcoord/.code={%
+        \pgfmathparse{#1+1}
+        \pgfkeys{/chordbox/@maxcoord/.expand once=\pgfmathresult}
+    },
     % Whether the barre has yet to be started
     @start barre/.is if=cb@startbarre
 }
@@ -87,6 +107,8 @@
 \tikzset{
     chordbox/.style={scale=0.25},
     chordbox/.value forbidden,
+    fret node text/.style={font=\Large\bfseries,text=white},
+    fret node text/.value forbidden,
     string/.is choice,
     string/base/.style={%
         circle, draw, inner sep=0, minimum size=20, transform shape%
@@ -114,7 +136,8 @@
         \foreach \b in {#4} {
             \pgfkeys{chordbox/.cd, @start barre=true, @fretnum=\b}
             \foreach[count=\s] \f in {#3} {
-                \if\f\b%
+                \StrChar{\f}{1}[\num]
+                \if\num\b%
                     \ifcb@startbarre%
                         \coordinate (start) at (\s\fretnum);
                         \global\cb@startbarrefalse
@@ -123,7 +146,8 @@
                     \fi
                 \fi
             }
-            \pgfkeys{chordbox/draw barre={start}{end}}
+            \scoped[on background layer]
+                \pgfkeys{chordbox/draw barre={start}{end}};
         }
     \end{tikzpicture}
 }
