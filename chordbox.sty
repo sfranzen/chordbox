@@ -49,13 +49,13 @@
     % list of finger positions, e.g. {x,0,2:2,2:3,1:1,0}.
     @draw/.code n args={3}{%
         \pgfkeys{.search also=/chordbox, @basefret={#1}}
-        % Count strings, put coordinates at finger positions and above the
-        % frets (index 0), then draw the string grid and decorations
+        % Put coordinates at finger positions and above the frets (index 0),
+        % store string count, then draw the string grid and decorations
         \foreach[count=\n] \fretpositions in {#3} {
-            \setcounter{cb@numstrings}{\n}
             \foreach \fret in {0,...,\pgfkeysvalueof{/chordbox/numfrets}}
                 \coordinate (\n\fret) at (\n-1, 0.5-\fret);
         }
+        \setcounter{cb@numstrings}{\n}
         \draw grid (\thecb@numstrings-1, -\pgfkeysvalueof{/chordbox/numfrets});
         \ifthenelse{\isempty{#1}\or#1<2}{% Draw the "nut"
             \fill rectangle (\thecb@numstrings-1, .2);
