@@ -10,6 +10,7 @@
 \setcounter{tocdepth}{2}
 \usepackage{color}
 \usepackage{babel}
+\usepackage{booktabs}
 \usepackage{textcomp}
 \usepackage{url}
 \usepackage{microtype}
@@ -133,31 +134,65 @@ The simplest form of the command requires you to specify only the
 \textlangle \emph{chord name}\textrangle{} and \textlangle \emph{fret
 positions}\textrangle . The former can contain any text and math symbols
 (see below), the latter should be a comma-separated list of elements,
-one for each string. Each of these is interpreted as follows: a positive
-number as a fretted string, the number 0 as an open string and anything
-else as a muted string. It draws a grid resembling the (vertical)
-strings over four horizontal frets, with a black bar at the top figuring
-as the instrument's nut. The number of strings drawn is determined
-by the number of \textlangle \emph{fret positions}\textrangle{} passed
-to the command, so generating chord diagrams for different instruments
-is no problem:
-
+one for each string, which may take the following values:
+\begin{itemize}
+\item \textlangle \emph{fret number}\textrangle {[}:\textlangle \emph{fingering
+text}\textrangle {]}\\
+A (positive) \textlangle \emph{fret number}\textrangle{} marks the
+current string as fretted at that position. It may optionally be followed
+by a colon and a \textlangle \emph{fingering text}\textrangle{} that
+will be displayed on the fret symbol or below the chord box.
+\item \emph{0} (zero)\\
+Marks the current string as open (unfretted).
+\item \emph{Anything else}\\
+An empty element or one starting with anything other than a number
+marks the current string as muted (not played).
+\end{itemize}
+It draws a grid resembling vertical strings crossing horizontal frets,
+with a black bar at the top figuring as the instrument's nut. The
+number of strings drawn is determined by the number of \textlangle \emph{fret
+positions}\textrangle{} passed to the command, so generating chord
+diagrams for different instruments is no problem:
+\begin{center}
 \begin{tabular}{ccc}
 Ukulele & 5-string banjo & 6-string guitar\tabularnewline
 \texttt{\small{}\textbackslash chordbox\{Am\}\{2,0,0,0\}} & \texttt{\small{}\textbackslash chordbox\{Am\}\{x,2,2,1,2\}} & \texttt{\small{}\textbackslash chordbox\{Am\}\{x,0,2,2,1,0\}}\tabularnewline
 \chordbox{Am}{2,0,0,0} & \chordbox{Am}{x,2,2,1,2} & \chordbox{Am}{x,0,2,2,1,0}\tabularnewline
 \end{tabular}
+\par\end{center}
+
+The number of frets drawn is initially 4, but this can be changed
+through the configuration key \texttt{\nameref{/chordbox/numfrets}}.
+
+As mentioned, you can optionally provide text for display on a fretted
+string symbol or under the string. This can be used to describe the
+fingering of a chord and is particularly useful for writing chord
+charts and other training materials. Because text on the fret symbol
+has to be scaled to fit inside it and the default scale is small,
+\texttt{chordbox} is initially configured to put this text below the
+strings, where it can be rendered in the default font. Illustrations
+of both options follow, where the letter T is used for the thumb and
+the digits for the other fingers, starting at 1 for the index finger:
+\begin{center}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{\texttt{\small{}\textbackslash chordbox\{F\}\{1:T,3:3,3:4,2:2,1:1,x\}}}\tabularnewline
+\chordbox{F}{1:T,3:3,3:4,2:2,1:1,x} & \pgfkeys{/chordbox/fingering text=on node}
+\tikzset{chordbox/.style={scale=0.6}}
+\chordbox{F}{1:T,3:3,3:4,2:2,1:1,x}\tabularnewline
+\end{tabular}
+\par\end{center}
 
 By default, the \textlangle \emph{chord name}\textrangle{} is processed
-by a command that typesets it in math mode, in roman font (see \texttt{\nameref{/chordbox/name}}).
+by a command that typesets it in math mode and roman type (see \texttt{\nameref{/chordbox/name}}).
 This allows the use of math symbols like \texttt{\textbackslash flat}
 and \texttt{\textbackslash sharp} as well as the \textasciicircum{}
 (superscript) operator to typeset decorated chord names:
-
+\begin{center}
 \begin{tabular}{cc}
 \texttt{\small{}\textbackslash chordbox\{B\textbackslash flat m\}\{x,x,x,3,2,1\}} & \texttt{\small{}\textbackslash chordbox\{F\textbackslash sharp\textasciicircum\{maj7\}\}\{2,x,3,3,2,x\}}\tabularnewline
 \chordbox{B\flat m}{x,x,x,3,2,1} & \chordbox{F\sharp^{maj7}}{2,x,3,3,2,x}\tabularnewline
 \end{tabular}
+\par\end{center}
 
 For best results, make sure to select the same typeface for both text
 and math typesetting. Of course, if you are also using the \texttt{leadsheets}
@@ -196,9 +231,9 @@ Because \texttt{chordbox} relies on \noun{pgf}/\TikZ{} for drawing,
 it makes sense to use the powerful \noun{pgf} key management system
 that comes with it. Therefore this package stores its code and style
 settings as keys, some of which may be modified to customise the output.
-This can be done anywhere in the preamble or document by means of
-the the \texttt{\textbackslash pgfset} and \texttt{\textbackslash tikzset}
-commands. Some examples of usage will be given below, but for more
+This can be done in the preamble or in any part of the document by
+means of \texttt{\textbackslash tikzset} and the more generic \texttt{\textbackslash pgfkeys}
+command. Some examples of usage will be given below, but for more
 reading about \noun{pgf} keys and their handling please refer to Section
 82 of the \noun{pgf} manual\autocite{pgfmanual} where everything
 is documented in full detail. In any case, modifying a key stores
@@ -209,14 +244,16 @@ up to parent groups.
 \subsection{\TikZ{} keys}
 
 The items described in this section are called \emph{styles} in \TikZ{}
-terminology and contain various (lists of) keys and values that can
-be applied to various drawing commands. Most importantly, the \texttt{chordbox}
+terminology and contain (lists of) keys and values that can be applied
+to various drawing commands. Most importantly, the \texttt{chordbox}
 style applies to the whole \texttt{\{tikzpicture\}} environment of
 every chord box produced. The default setting is to scale all coordinates
 by a quarter, because the drawing is done in \noun{pgf}'s ``natural''
 units that, though convenient to use, result in an impractically large
-picture. Note that this scaling only influences the \TikZ{} components;
-in particular, fonts are not affected.
+picture. Note that this scaling only influences the \TikZ{} coordinates;
+in particular, fonts are not affected by default\footnote{This is because text is put in nodes, which are scaled independently
+of the picture and require the \texttt{scale} and/or \texttt{transform
+shape} options to be supplied.}.
 
 Because these keys are all stored in the \texttt{/tikz} path, it is
 most convenient to change them using the \texttt{\textbackslash tikzset}
@@ -226,6 +263,10 @@ thick\}\}}.
 \item [{/tikz/chordbox}] \hfill{}(style, initially \texttt{\{scale=0.25\}})\\
 This style is applied to every \texttt{\{tikzpicture\}} environment
 produced by this package.
+\item [{/tikz/fret~node~text}] \hfill{}(style, initially \texttt{\{font=\textbackslash Large\textbackslash bfseries,text=white\}})\\
+This style is applied to text drawn on fretted string nodes. It aims
+to make the text as clear and as big as possible without increasing
+the node size, which will occur if the text is too tall or wide.
 \end{description}
 The rest of the styles define the three symbol shapes used for the
 fretted (\tikz[chordbox]\coordinate[string=fretted];), open (\tikz[chordbox]\coordinate[string=open];)
@@ -247,15 +288,27 @@ cross out, minimum size=19\}})
 \subsection{Other keys\label{subsec:Other-keys}}
 
 The following keys are not passed directly to \TikZ{} commands, but
-used to store global settings. They are all in the \texttt{/chordbox}
-path and should be set using the \texttt{\textbackslash pgfset} command,
-for example \texttt{\textbackslash pgfset\{/chordbox/name/.code=\textbackslash writechord\{\#1\}\}}.
+used to store various other settings and code. They are all in the
+\texttt{/chordbox} path and should be set using the \texttt{\textbackslash pgfkeys}
+command, for example \texttt{\textbackslash pgfkeys\{/chordbox/name/.code=\textbackslash writechord\{\#1\}\}}.
+Keys that execute code, like this example, produce output with occurrences
+of \texttt{\#1} replaced by the relevant value. If you want to change
+more than one of these settings at once, it is shorter to issue a
+command like the following: \texttt{\textbackslash pgfkeys\{/chordbox/.cd,
+numfrets=5, fingering text=on node\}}.
 \begin{description}
-\item [{/chordbox/numfrets\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}number}}}\texttt{\textcolor{black}{\small{}\textrangle{}}}}] \hfill{}(initially
+\item [{/chordbox/numfrets\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}number}}}\texttt{\textcolor{black}{\small{}\textrangle }}\textcolor{black}{\small{}\label{/chordbox/numfrets}}}] \hfill{}(initially
 \texttt{4}) \\
 The number of frets drawn in each chord box.
+\item [{/chordbox/base~fret}] \hfill{}(initially \texttt{\{fr\textbackslash raisebox\{.5ex\}\{\textbackslash scriptsize\#1\}})\\
+This key stores the code used to typeset the base fret position of
+a chord box, if provided and greater than 1.
 \item [{/chordbox/name\label{/chordbox/name}}] \hfill{}(initially \texttt{\textbackslash ensuremath\{\textbackslash mathrm\{\#1\}\}})\\
 The code that is used to typeset the name of the chord.
+\item [{/chordbox/fingering~text\texttt{\textcolor{black}{\small{}=on}}}] \texttt{\textcolor{black}{\small{}node|below
+}}\hfill{}(initially \texttt{below})\\
+Whether to draw the fingering text, if provided, on the fret nodes
+or underneath the string.
 \end{description}
 
 \appendix
