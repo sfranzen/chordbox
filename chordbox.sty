@@ -35,6 +35,8 @@
     draw barre/.value required,
     % Number of frets displayed
     numfrets/.initial=4,
+    % Base fret number parser
+    base fret/.code={fr\raisebox{.5ex}{\scriptsize#1}},
     % Chord name parser
     name/.code=\ensuremath{\mathrm{#1}},
     name/.value required,
@@ -59,7 +61,7 @@
         \ifthenelse{\isempty{#1}\or#1<2}{% Draw the "nut"
             \fill rectangle (\thecb@numstrings-1, .2);
         }{% Draw the position indicator
-            \node[left] at (11) {fr\raisebox{.5ex}{\scriptsize#1}};
+            \node[left] at (11) {\pgfkeys{chordbox/base fret={#1}}};
         }
         % Center chord name over strings
         \pgfmathparse{0.5 * (\thecb@numstrings - 1)}
