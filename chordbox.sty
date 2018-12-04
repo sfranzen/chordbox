@@ -24,7 +24,7 @@
 \newcounter{cb@numstrings}
 
 % Set up keys for the drawing code
-\pgfset{
+\pgfkeys{
     /chordbox/.cd,
     % This fills a bar of width 0.4 that scales properly, without requiring
     % extra libraries
@@ -48,7 +48,7 @@
     % (>1) of the chord box, #2 is the chord name and #3 the comma-separated
     % list of finger positions, e.g. {x,0,2:2,2:3,1:1,0}.
     @draw/.code n args={3}{%
-        \pgfkeys{chordbox/@basefret={#1}}
+        \pgfkeys{.search also=/chordbox, @basefret={#1}}
         % Count strings, put coordinates at finger positions and above the
         % frets (index 0), then draw the string grid and decorations
         \foreach[count=\n] \fretpositions in {#3} {
@@ -60,11 +60,11 @@
         \ifthenelse{\isempty{#1}\or#1<2}{% Draw the "nut"
             \fill rectangle (\thecb@numstrings-1, .2);
         }{% Draw the position indicator
-            \node[left] at (11) {\pgfkeys{chordbox/base fret={#1}}};
+            \node[left] at (11) {\pgfkeys{base fret={#1}}};
         }
         % Center chord name over strings
         \pgfmathparse{0.5 * (\thecb@numstrings - 1)}
-        \node[above] at (\pgfmathresult, 1.25) {\pgfkeys{chordbox/name={#2}}};
+        \node[above] at (\pgfmathresult, 1.25) {\pgfkeys{name={#2}}};
         % Draw the string symbols according to argument #3
         \foreach \fret [count=\s] in {#3} {
             \ifnum\pdfmatch{^[0-9]+}{\fret}=1
@@ -72,7 +72,7 @@
                 \ifnum\num=0%
                     \node[string=open] at (\s0) {};
                 \else%
-                    \pgfkeys{chordbox/@fretnum=\num}
+                    \pgfkeys{@fretnum=\num}
                     \node[string=fretted, fret node text] at (\s\fretnum)
                         {\if0\cb@fingeringtext\StrBehind{\fret}{:}\fi};
                     \if1\cb@fingeringtext%
@@ -129,7 +129,7 @@
     \begin{tikzpicture}[chordbox]
         \pgfkeys{chordbox/@draw={#1}{#2}{#3}}
         \foreach \b in {#4} {
-            \pgfkeys{chordbox/.cd, @start barre=true, @fretnum=\b}
+            \pgfkeys{@start barre=true, @fretnum=\b}
             \foreach[count=\s] \f in {#3} {
                 \StrChar{\f}{1}[\num]
                 \if\num\b%
@@ -142,7 +142,7 @@
                 \fi
             }
             \scoped[on background layer]
-                \pgfkeys{chordbox/draw barre={start}{end}};
+                \pgfkeys{draw barre={start}{end}};
         }
     \end{tikzpicture}
 }
