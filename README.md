@@ -6,7 +6,8 @@ A LaTeX package for drawing string instrument chord diagrams
 
 Chordbox depends on the following LaTeX packages:
 * tikz;
-* xifthen.
+* xifthen;
+* xstrings.
 
 ## Installation
 

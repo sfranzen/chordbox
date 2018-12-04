@@ -18,7 +18,6 @@
  bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
  breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false]
  {hyperref}
-\hypersetup{pdftitle={Chordbox v0.1 Documentation}}
 
 \makeatletter
 
@@ -30,8 +29,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
 \usepackage{chordbox}
 \usepackage{filecontents}
-\setkomafont{descriptionlabel}{\ttfamily\color{red}}
+
 \newcommand\TikZ{Ti\emph{k}Z}
+\newcommand\version{v0.2}
+\hypersetup{
+	pdftitle={Chordbox \version\ Documentation},
+	pdfauthor={Steven Franzen}
+}
+\setkomafont{descriptionlabel}{\ttfamily\color{red}}
 
 \begin{filecontents}{chordbox.bib}
 @software{leadsheets,
@@ -73,7 +78,7 @@
 \title{Chordbox}
 \subtitle{A \LaTeX{} package for drawing string instrument chord diagrams}
 \author{Steven Franzen}
-\date{v0.1\quad{}\today}
+\date{\version\quad{}\today}
 \publishers{\url{https://github.com/sfranzen/chordbox}}
 
 \maketitle
