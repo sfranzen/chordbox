@@ -20,8 +20,6 @@
 \usetikzlibrary{shapes.misc, scopes, backgrounds}
 
 \newif\ifcb@startbarre
-\newif\ifcb@textonnode
-\newif\ifcb@textbelow
 \newcounter{cb@numstrings}
 
 % Set up keys for the drawing code
@@ -68,7 +66,7 @@
         \node[above] at (\pgfmathresult, 1.25) {\pgfkeys{chordbox/name={#2}}};
         % Draw the string symbols according to argument #3
         \foreach \fret [count=\s] in {#3} {
-            \ifnum\pdfmatch{^[0-9]}{\fret}=1
+            \ifnum\pdfmatch{^[0-9]+}{\fret}=1
                 \StrBehind{\pdflastmatch 0}{>}[\num]
                 \ifnum\num=0%
                     \node[string=open] at (\s0) {};
@@ -90,7 +88,7 @@
     % The base fret of a given chord box
     @basefret/.initial=1,
     % Calculate the given fret position #1, corrected for the base fret
-    @fretnum/.code=\pgfmathsetmacro{\fretnum}{%
+    @fretnum/.code=\pgfmathtruncatemacro{\fretnum}{%
         1 + #1 - \pgfkeysvalueof{/chordbox/@basefret}
     },
     % Whether the barre has yet to be started
