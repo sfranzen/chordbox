@@ -21,7 +21,6 @@
 \usetikzlibrary{shapes.misc, scopes, backgrounds}
 
 \newif\ifcb@startbarre
-\newif\ifcb@displaypitch
 \newcounter{cb@numstrings}
 
 % Set up keys for the drawing code
@@ -40,13 +39,18 @@
     % Chord name parser
     name/.code=\ensuremath{\mathrm{#1}},
     name/.value required,
-    % Configuration of finger position text
-    fingering text/.is choice,
-    fingering text/on node/.code={\def\cb@fingeringtext{0}},
-    fingering text/below/.code={\def\cb@fingeringtext{1}},
-    fingering text/below,
+    % Configuration of text below the chord box and on the nodes
+    text below/.is choice,
+    text below/none/.code={\def\cb@textbelow{0}},
+    text below/fingering/.code={\def\cb@textbelow{1}},
+    text below/pitch/.code={\def\cb@textbelow{2}},
+    text below/fingering,
+    text on node/.is choice,
+    text on node/none/.code={\def\cb@textonnode{0}},
+    text on node/fingering/.code={\def\cb@textonnode{1}},
+    text on node/pitch/.code={\def\cb@textonnode{2}},
+    text on node/none,
     % Pitch name settings; arrays only seem to work with TeX macros
-    display pitch/.is if=cb@displaypitch,
     pitch names/.store in=\cb@pitchnames,
     pitch names={"A","A\#","B","C","C\#","D","D\#","E","F","F\#","G","G\#"},
     tuning/.store in=\cb@tuning,
@@ -76,25 +80,36 @@
         \foreach \fret [count=\s] in {#3} {
             \ifnum\pdfmatch{^[0-9]+}{\fret}=1
                 \StrBehind{\pdflastmatch 0}{>}[\num]
+                \ifthenelse{\cb@textbelow=2\OR\cb@textonnode=2}{
+                    \def\pitch{\pgfkeys{@find pitch={\s}{\num}}}
+                }{}
                 \ifnum\num=0%
-                    \node[string=open] at (\s0) {};
+                    \node[string=open, fret node text, black] at (\s0) {
+                        \if2\cb@textonnode
+                            \pitch
+                        \fi
+                    };
                 \else%
                     \pgfkeys{@fretnum=\num}
-                    \node[string=fretted, fret node text] at (\s\fretnum)
-                        {\if0\cb@fingeringtext\StrBehind{\fret}{:}\fi};
-                    \if1\cb@fingeringtext%
-                        \node[below]
-                            at (\s-1, -\pgfkeysvalueof{/chordbox/numfrets})
-                            {\StrBehind{\fret}{:}};
-                    \fi
+                    \node[string=fretted, fret node text] at (\s\fretnum) {
+                        \if1\cb@textonnode
+                            \StrBehind{\fret}{:}
+                        \else\if2\cb@textonnode
+                            \pitch
+                        \fi\fi
+                    };
                 \fi
-                % Display pitch only if desired and not drawing anything else
-                % below the diagram
-                \ifthenelse{\boolean{cb@displaypitch}\and\cb@fingeringtext=0}{
+                % Display the "text below"
+                \ifnum\cb@textbelow>0
                     \node[below]
-                        at (\s-1, -\pgfkeysvalueof{/chordbox/numfrets})
-                        {\pgfkeys{@find pitch={\s}{\num}}};
-                }{}
+                        at (\s-1, -\pgfkeysvalueof{/chordbox/numfrets}) {
+                            \if1\cb@textbelow
+                                \StrBehind{\fret}{:}
+                            \else
+                                \pitch
+                            \fi
+                    };
+                \fi
             \else % Anything other than a number is taken to mean "muted"
                 \node[string=muted] at (\s0) {};
             \fi
@@ -118,7 +133,7 @@
                 \pgfmathparse{{\cb@pitchnames}[\p]}
                 \if\stringpitch\pgfmathresult
                     \pgfmathparse{{\cb@pitchnames}[mod(\p + #2, 12)]}
-                    \pgfmathresult
+                    \pgfmathresult%
                     \breakforeach
                 \fi
             }
