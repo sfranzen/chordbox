@@ -80,16 +80,14 @@
         \foreach \fret [count=\s] in {#3} {
             \ifnum\pdfmatch{^[0-9]+}{\fret}=1
                 \StrBehind{\pdflastmatch 0}{>}[\num]
-                \ifthenelse{\cb@textbelow=2\OR\cb@textonnode=2}{
-                    \def\pitch{\pgfkeys{@find pitch={\s}{\num}}}
-                }{}
-                \ifnum\num=0%
+                \def\pitch{\pgfkeys{@typeset pitch={\s}{\num}}}
+                \ifnum\num=0
                     \node[string=open, fret node text, black] at (\s0) {
                         \if2\cb@textonnode
                             \pitch
                         \fi
                     };
-                \else%
+                \else
                     \pgfkeys{@fretnum=\num}
                     \node[string=fretted, fret node text] at (\s\fretnum) {
                         \if1\cb@textonnode
@@ -102,12 +100,15 @@
                 % Display the "text below"
                 \ifnum\cb@textbelow>0
                     \node[below]
-                        at (\s-1, -\pgfkeysvalueof{/chordbox/numfrets}) {
-                            \if1\cb@textbelow
-                                \StrBehind{\fret}{:}
-                            \else
-                                \pitch
-                            \fi
+                        at (\s-1, -\pgfkeysvalueof{/chordbox/numfrets})
+                    {
+                        \if1\cb@textbelow
+                            \StrBehind{\fret}{:}
+                        \else
+                            % Use a phantom symbol here to make sure pitch
+                            % names align
+                            \scriptsize\vphantom{$\flat\sharp$}\pitch
+                        \fi
                     };
                 \fi
             \else % Anything other than a number is taken to mean "muted"
@@ -123,22 +124,32 @@
     },
     % Whether the barre has yet to be started
     @start barre/.is if=cb@startbarre,
-    % Find pitch of string number #1 at fret number #2
-    @find pitch/.code 2 args={
-        \pgfmathsetmacro{\stringpitch}{{\cb@tuning}[#1-1]}%
+    % Symbols for pitch notation
+    flat symbol/.initial=\flat,
+    sharp symbol/.initial=\sharp,
+    % Find and typeset pitch of string number #1 at fret number #2
+    @typeset pitch/.code 2 args={
+        \pgfmathparse{{\cb@tuning}[#1-1]}
         \ifnum#2=0
-            \stringpitch
+            \pgfkeys{@replace symbols=\pgfmathresult}
         \else
             \foreach \p in {0,...,11} {%
-                \pgfmathparse{{\cb@pitchnames}[\p]}
+                \pgfmathsetmacro{\stringpitch}{{\cb@pitchnames}[\p]}%
                 \if\stringpitch\pgfmathresult
                     \pgfmathparse{{\cb@pitchnames}[mod(\p + #2, 12)]}
-                    \pgfmathresult%
+                    \pgfkeys{@replace symbols=\pgfmathresult}%
                     \breakforeach
                 \fi
             }
         \fi
     },
+    % Replace pitch text with math symbols
+    @replace symbols/.code={%
+        \def\#{\ensuremath{\pgfkeysvalueof{/chordbox/sharp symbol}}}%
+        \StrSubstitute{#1}{b}{%
+            \ensuremath{\pgfkeysvalueof{/chordbox/flat symbol}}%
+        }
+    }
 }
 
 % Define tikz drawing styles. The muted string symbol size is slightly smaller
