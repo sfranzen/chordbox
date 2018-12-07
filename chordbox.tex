@@ -23,6 +23,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
 \newcommand{\noun}[1]{\textsc{#1}}
+\newcommand*\LyXZeroWidthSpace{\hspace{0pt}}
 %% Because html converters don't know tabularnewline
 \providecommand{\tabularnewline}{\\}
 
@@ -31,12 +32,13 @@
 \usepackage{filecontents}
 
 \newcommand\TikZ{Ti\emph{k}Z}
-\newcommand\version{v0.2}
+\newcommand\version{v0.3}
 \hypersetup{
 	pdftitle={Chordbox \version\ Documentation},
 	pdfauthor={Steven Franzen}
 }
 \setkomafont{descriptionlabel}{\ttfamily\color{red}}
+\tikzset{chordbox/.append style={baseline}}
 
 \begin{filecontents}{chordbox.bib}
 @software{leadsheets,
@@ -78,7 +80,7 @@
 \title{Chordbox}
 \subtitle{A \LaTeX{} package for drawing string instrument chord diagrams}
 \author{Steven Franzen}
-\date{\version\quad{}\today}
+\date{\version\quad\today}
 \publishers{\url{https://github.com/sfranzen/chordbox}}
 
 \maketitle
@@ -146,7 +148,7 @@ text}\textrangle {]}\\
 A (positive) \textlangle \emph{fret number}\textrangle{} marks the
 current string as fretted at that position. It may optionally be followed
 by a colon and a \textlangle \emph{fingering text}\textrangle{} that
-will be displayed on the fret symbol or below the chord box.
+can be displayed on the fret symbol or below the chord box.
 \item \emph{0} (zero)\\
 Marks the current string as open (unfretted).
 \item \emph{Anything else}\\
@@ -167,28 +169,32 @@ Ukulele & 5-string banjo & 6-string guitar\tabularnewline
 \par\end{center}
 
 The number of frets drawn is initially 4, but this can be changed
-through the configuration key \texttt{\nameref{/chordbox/numfrets}}.
+through the configuration key \texttt{\hyperref[key:numfrets]{/chordbox/numfrets}}.
 
-As mentioned, you can optionally provide text for display on a fretted
-string symbol or under the string. This can be used to describe the
-fingering of a chord and is particularly useful for writing chord
-charts and other training materials. Because text on the fret symbol
-has to be scaled to fit inside it and the default scale is small,
-\texttt{chordbox} is initially configured to put this text below the
-strings, where it can be rendered in the default font. Illustrations
-of both options follow, where the letter T is used for the thumb and
-the digits for the other fingers, starting at 1 for the index finger:
+As mentioned, you can optionally provide fingering information for
+a chord, which is particularly useful for writing chord charts and
+other training materials. Because text on the fret symbol has to be
+scaled to fit inside it and the default scale is small, \texttt{chordbox}
+is initially configured to put this text below the strings, where
+it can be rendered at a larger size. However, the other option may
+be more appealing for larger diagrams, so both options can be used,
+see \texttt{}\texttt{\hyperref[key:textbelow]{/chordbox/text below}}
+and \texttt{\hyperref[key:textonnode]{/chordbox/text on node}}. They
+are illustrated below, where the letter T is used for the thumb and
+the digits for the other fingers, starting at 1 for the index finger.
+The larger chord box on the right has been given a scale of 2.5 times
+the default.
 \begin{center}
-\begin{tabular}{cc}
+\begin{tabular}[t]{cc}
 \multicolumn{2}{c}{\texttt{\small{}\textbackslash chordbox\{F\}\{1:T,3:3,3:4,2:2,1:1,x\}}}\tabularnewline
-\chordbox{F}{1:T,3:3,3:4,2:2,1:1,x} & \pgfkeys{/chordbox/fingering text=on node}
-\tikzset{chordbox/.style={scale=0.6}}
+\chordbox{F}{1:T,3:3,3:4,2:2,1:1,x} & \pgfkeys{/chordbox/.cd,text on node=fingering,text below=none}
+\tikzset{chordbox/.append style={scale=2.5}}
 \chordbox{F}{1:T,3:3,3:4,2:2,1:1,x}\tabularnewline
 \end{tabular}
 \par\end{center}
 
 By default, the \textlangle \emph{chord name}\textrangle{} is processed
-by a command that typesets it in math mode and roman type (see \texttt{\nameref{/chordbox/name}}).
+by a command that typesets it in math mode and roman type (see \texttt{\nameref{key:name}}).
 This allows the use of math symbols like \texttt{\textbackslash flat}
 and \texttt{\textbackslash sharp} as well as the \textasciicircum{}
 (superscript) operator to typeset decorated chord names:
@@ -214,6 +220,35 @@ position the box and fretted notes relative to this fret, for example
 \chordbox[6]{D\sharp m^{7\flat 5}}{x,6,7,6,7,x}
 
 As can be seen, the nut is not drawn in these cases.
+
+Finally, \texttt{chordbox} can also display the pitch of each note
+in a chord, although the default is not to. The pitches do not need
+to be specified manually, but are determined from the fret positions
+given to the command and the configured tuning (\texttt{\hyperref[key:tuning]{/chordbox/tuning}}).
+Just like fingering information, you may choose to display it inside
+the symbols or underneath the chord box, or combine both types of
+information:
+\begin{center}
+\begin{tabular}{rccc}
+Command & \multicolumn{3}{c}{\texttt{\small{}\textbackslash chordbox\{D\}\{x,x,0,2:1,3:3,2:2\}}}\tabularnewline
+\midrule
+Scale & default & 2.5 $\times$ larger & 2.5 $\times$ larger\tabularnewline
+\texttt{text on node} & \texttt{none} & \texttt{pitch} & \texttt{fingering}\tabularnewline
+\texttt{text below} & \texttt{pitch} & \texttt{none} & \texttt{pitch}\tabularnewline
+\midrule
+Result & \pgfkeys{/chordbox/text below=pitch}
+\chordbox{D}{x,x,0,2,3,2} & \pgfkeys{/chordbox/text on node=pitch}
+\tikzset{chordbox/.append style={scale=2.5}}
+\chordbox{D}{x,x,0,2,3,2} & \pgfkeys{/chordbox/.cd,text on node=fingering,text below=pitch}
+\tikzset{chordbox/.append style={scale=2.5}}
+\chordbox{D}{x,x,0,2:1,3:3,2:2}\tabularnewline
+\bottomrule
+\end{tabular}
+\par\end{center}
+
+Pitch names may include accidentals, so underneath the chord box they
+are displayed at \texttt{\textbackslash scriptsize} to avoid overlapping
+at the default picture scale.
 
 \subsection{The \texttt{\textbackslash bchordbox} command}
 
@@ -269,13 +304,15 @@ thick\}\}}.
 This style is applied to every \texttt{\{tikzpicture\}} environment
 produced by this package.
 \item [{/tikz/fret~node~text}] \hfill{}(style, initially \texttt{\{font=\textbackslash Large\textbackslash bfseries,text=white\}})\\
-This style is applied to text drawn on fretted string nodes. It aims
-to make the text as clear and as big as possible without increasing
-the node size, which will occur if the text is too tall or wide.
+This style is applied to text drawn on fretted or open string nodes,
+with the colour switched to black for the latter. It aims to make
+the text as clear and as big as possible without increasing the node
+size, which will occur if the text is too tall or wide.
 \end{description}
 The rest of the styles define the three symbol shapes used for the
-fretted (\tikz[chordbox]\coordinate[string=fretted];), open (\tikz[chordbox]\coordinate[string=open];)
-and muted (\tikz[chordbox]\coordinate[string=muted];) string positions.
+fretted (\tikz[chordbox,above]\coordinate[string=fretted];), open
+(\tikz[chordbox]\coordinate[string=open];) and muted (\tikz[chordbox]\coordinate[string=muted];)
+string positions.
 \begin{description}
 \item [{/tikz/string/base}] \hfill{}(style, initially \texttt{\{circle,
 draw, inner sep=0, minimum size=20, transform shape\}})\\
@@ -302,18 +339,44 @@ more than one of these settings at once, it is shorter to issue a
 command like the following: \texttt{\textbackslash pgfkeys\{/chordbox/.cd,
 numfrets=5, fingering text=on node\}}.
 \begin{description}
-\item [{/chordbox/numfrets\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}number}}}\texttt{\textcolor{black}{\small{}\textrangle }}\textcolor{black}{\small{}\label{/chordbox/numfrets}}}] \hfill{}(initially
+\item [{/chordbox/numfrets\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}number}}}\texttt{\textcolor{black}{\small{}\textrangle }}\label{key:numfrets}}] \hfill{}(initially
 \texttt{4}) \\
 The number of frets drawn in each chord box.
 \item [{/chordbox/base~fret}] \hfill{}(initially \texttt{\{fr\textbackslash raisebox\{.5ex\}\{\textbackslash scriptsize\#1\}})\\
 This key stores the code used to typeset the base fret position of
 a chord box, if provided and greater than 1.
-\item [{/chordbox/name\label{/chordbox/name}}] \hfill{}(initially \texttt{\textbackslash ensuremath\{\textbackslash mathrm\{\#1\}\}})\\
+\item [{/chordbox/name\label{key:name}}] \hfill{}(initially \texttt{\textbackslash ensuremath\{\textbackslash mathrm\{\#1\}\}})\\
 The code that is used to typeset the name of the chord.
-\item [{/chordbox/fingering~text\texttt{\textcolor{black}{\small{}=on}}}] \texttt{\textcolor{black}{\small{}node|below
-}}\hfill{}(initially \texttt{below})\\
-Whether to draw the fingering text, if provided, on the fret nodes
-or underneath the string.
+\end{description}
+The next two keys govern the placement of extra information in the
+chord box. In both cases, the \texttt{fingering} text is only displayed
+if actually present in the input.
+\begin{description}
+\item [{/chordbox/text~below\texttt{\textcolor{black}{\small{}=none|fingering|pitch}}\label{key:textbelow}}] \hfill{}(initially
+\texttt{fingering})\\
+Selects what to display below each string.
+\item [{/chordbox/text~on~node\texttt{\textcolor{black}{\small{}=none|fingering|pitch}}\label{key:textonnode}}] \hfill{}(initially
+\texttt{none})\\
+Selects what to display inside the string symbols.
+\end{description}
+The remaining keys determine how pitch information is calculated and
+displayed. Pitches should be given enclosed in quotation marks and
+accidentals should be specified as \texttt{b} (flat) or \texttt{\textbackslash\#}
+(sharp); these will be replaced by their respective symbols.
+\begin{description}
+\item [{/chordbox/flat~symbol\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}symbol}}}\texttt{\textcolor{black}{\small{}\textrangle{}}}}] \hfill{}(initially
+\texttt{\textbackslash flat})
+\item [{/chordbox/sharp~symbol\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}symbol}}}\texttt{\textcolor{black}{\small{}\textrangle{}}}}] \hfill{}(initially
+\texttt{\textbackslash sharp})
+\item [{/chordbox/pitch~names\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}list~of~pitches}}}\texttt{\textcolor{black}{\small{}\textrangle{}}}}] \hfill{}(initially
+\texttt{\{\textquotedbl A\textquotedbl ,\textquotedbl A\textbackslash\#\textquotedbl ,\textquotedbl B\textquotedbl ,\textquotedbl C\textquotedbl ,\textquotedbl C\textbackslash\#\textquotedbl ,\LyXZeroWidthSpace\textquotedbl D\textquotedbl ,\textquotedbl D\textbackslash\#\textquotedbl ,\textquotedbl E\textquotedbl ,\textquotedbl F\textquotedbl ,\textquotedbl F\textbackslash\#\textquotedbl ,\textquotedbl G\textquotedbl ,\textquotedbl G\textbackslash\#\textquotedbl\}})\\
+The names of the pitches to be used for display. The list need not
+start at A, but it must contain twelve sequential semitones.
+\item [{/chordbox/tuning\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}list~of~pitches}}}\texttt{\textcolor{black}{\small{}\textrangle }}\label{key:tuning}}] \hfill{}(initially
+\texttt{\{"E","A","D","G","B","E"\}})\\
+The tuning of the instrument for which chord boxes are to be drawn.
+It is used to determine the pitches of the chord and must consist
+of elements present in \texttt{pitch names}.
 \end{description}
 
 \appendix
