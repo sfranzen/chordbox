@@ -23,8 +23,7 @@
 \newcounter{cb@numstrings}
 
 % Set up keys for the drawing code
-\pgfkeys{
-    /chordbox/.cd,
+\pgfqkeys{/chordbox}{
     % This fills a bar of width 0.4 that scales properly, without requiring
     % extra libraries
     draw barre/.code 2 args={%
