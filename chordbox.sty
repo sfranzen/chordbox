@@ -20,7 +20,6 @@
 \usetikzlibrary{shapes.misc, scopes, backgrounds}
 
 \newif\ifcb@startbarre
-\newcounter{cb@numstrings}
 
 % Set up keys for the drawing code
 \pgfqkeys{/chordbox}{
@@ -58,56 +57,48 @@
     % list of finger positions, e.g. {x,0,2:2,2:3,1:1,0}.
     @draw/.code n args={3}{%
         \pgfkeys{.search also=/chordbox, @basefret={#1}}
+        \pgfqkeys{/chordbox}{numfrets/.get=\numfrets}
         % Put coordinates at finger positions and above the frets (index 0),
         % store string count, then draw the string grid and decorations
-        \foreach[count=\n] \fretpositions in {#3} {
-            \foreach \fret in {0,...,\pgfkeysvalueof{/chordbox/numfrets}}
-                \coordinate (\n\fret) at (\n-1, 0.5-\fret);
+        \foreach[count=\n] \fretposition in {#3} {
+            \foreach \fret in {0,...,\numfrets}
+                \coordinate (\n\fret) at (\n - 1, 0.5 - \fret);
         }
-        \setcounter{cb@numstrings}{\n}
-        \draw grid (\thecb@numstrings-1, -\pgfkeysvalueof{/chordbox/numfrets});
+        \draw grid (\n - 1, -\numfrets);
         \ifthenelse{\isempty{#1}\or#1<2}{% Draw the "nut"
-            \fill rectangle (\thecb@numstrings-1, .2);
+            \fill rectangle (\n - 1, .2);
         }{% Draw the position indicator
             \node[left] at (11) {\pgfkeys{base fret={#1}}};
         }
         % Center chord name over strings
-        \pgfmathparse{0.5 * (\thecb@numstrings - 1)}
+        \pgfmathparse{0.5 * (\n - 1)}
         \node[above] at (\pgfmathresult, 1.25) {\pgfkeys{name={#2}}};
         % Draw the string symbols according to argument #3
-        \foreach \fret [count=\s] in {#3} {
+        \foreach[count=\s] \fret in {#3} {
             \ifnum\pdfmatch{^[0-9]+}{\fret}=1
                 \StrBehind{\pdflastmatch 0}{>}[\num]
                 \def\pitch{\pgfkeys{@typeset pitch={\s}{\num}}}
+                \let\nodetext\empty
+                \ifcase\cb@textonnode\or % 0
+                    \StrBehind{\fret}{:}[\nodetext]\or % 1
+                    \let\nodetext\pitch % 2
+                \fi
                 \ifnum\num=0
-                    \node[string=open, fret node text, black] at (\s0) {
-                        \if2\cb@textonnode
-                            \pitch
-                        \fi
-                    };
+                    \node[string=open, fret node text, black] at (\s0)
+                        {\nodetext};
                 \else
                     \pgfkeys{@fretnum=\num}
-                    \node[string=fretted, fret node text] at (\s\fretnum) {
-                        \if1\cb@textonnode
-                            \StrBehind{\fret}{:}
-                        \else\if2\cb@textonnode
-                            \pitch
-                        \fi\fi
-                    };
+                    \node[string=fretted, fret node text] at (\s\fretnum)
+                        {\nodetext};
                 \fi
                 % Display the "text below"
                 \ifnum\cb@textbelow>0
-                    \node[below]
-                        at (\s-1, -\pgfkeysvalueof{/chordbox/numfrets})
-                    {
-                        \if1\cb@textbelow
-                            \StrBehind{\fret}{:}
-                        \else
-                            % Use a phantom symbol here to make sure pitch
-                            % names align
-                            \scriptsize\vphantom{$\flat\sharp$}\pitch
-                        \fi
-                    };
+                    \ifcase\cb@textbelow\or
+                        \StrBehind{\fret}{:}[\belowtext]\or
+                        % Use a phantom symbol here to make sure pitch names align
+                        \def\belowtext{\scriptsize\vphantom{$\flat\sharp$}\pitch}
+                    \fi
+                    \node[below] at (\s - 1, -\numfrets) {\belowtext};
                 \fi
             \else % Anything other than a number is taken to mean "muted"
                 \node[string=muted] at (\s0) {};
@@ -172,7 +163,7 @@
 %   \chordbox[5]{A}{5,7,7,6,5,5}
 \providecommand{\chordbox}[3][1]{%
     \begin{tikzpicture}[chordbox]
-        \pgfkeys{chordbox/@draw={#1}{#2}{#3}}
+        \pgfqkeys{/chordbox}{@draw={#1}{#2}{#3}}
     \end{tikzpicture}
 }
 
@@ -181,7 +172,7 @@
 %   \bchordbox[3]{C}{x,3,5,5,5,3}{3,5}
 \providecommand{\bchordbox}[4][1]{%
     \begin{tikzpicture}[chordbox]
-        \pgfkeys{chordbox/@draw={#1}{#2}{#3}}
+        \pgfqkeys{/chordbox}{@draw={#1}{#2}{#3}}
         \foreach \b in {#4} {
             \pgfkeys{@start barre=true, @fretnum=\b}
             \foreach[count=\s] \f in {#3} {
