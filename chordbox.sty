@@ -63,6 +63,8 @@
         \foreach[count=\n] \fretposition in {#3} {
             \foreach \fret in {0,...,\numfrets}
                 \coordinate (\n\fret) at (\n - 1, 0.5 - \fret);
+            % Extra coordinate for text below each string
+            \coordinate (\n) at (\n - 1, -\numfrets);
         }
         \draw grid (\n - 1, -\numfrets);
         \ifthenelse{\isempty{#1}\or#1<2}{% Draw the "nut"
@@ -77,10 +79,13 @@
         \foreach[count=\s] \fret in {#3} {
             \ifnum\pdfmatch{^[0-9]+}{\fret}=1
                 \StrBehind{\pdflastmatch 0}{>}[\num]
+                \StrBehind{\fret}{:}[\frettext]
                 \def\pitch{\pgfkeys{@typeset pitch={\s}{\num}}}
                 \let\nodetext\empty
-                \ifcase\cb@textonnode\or % 0
-                    \StrBehind{\fret}{:}[\nodetext]\or % 1
+                \ifcase\cb@textonnode
+                \or
+                    \let\nodetext\frettext % 1
+                \or
                     \let\nodetext\pitch % 2
                 \fi
                 \ifnum\num=0
@@ -93,12 +98,16 @@
                 \fi
                 % Display the "text below"
                 \ifnum\cb@textbelow>0
-                    \ifcase\cb@textbelow\or
-                        \StrBehind{\fret}{:}[\belowtext]\or
-                        % Use a phantom symbol here to make sure pitch names align
-                        \def\belowtext{\scriptsize\vphantom{$\flat\sharp$}\pitch}
+                    \if1\cb@textbelow
+                        \if\frettext\empty
+                        \else
+                            \node[below] at (\s) {\frettext};
+                        \fi
+                    \else
+                        % Insert vphantom here to align all pitch names
+                        \node[below, pitch text below] at (\s)
+                            {\vphantom{\pgfkeys{@replace symbols=\#b}}\pitch};
                     \fi
-                    \node[below] at (\s - 1, -\numfrets) {\belowtext};
                 \fi
             \else % Anything other than a number is taken to mean "muted"
                 \node[string=muted] at (\s0) {};
@@ -149,6 +158,7 @@
     chordbox/.value forbidden,
     fret node text/.style={font=\Large\bfseries,text=white},
     fret node text/.value forbidden,
+    pitch text below/.style={font=\tiny},
     string/.is choice,
     string/base/.style={%
         circle, draw, inner sep=0, minimum size=20, transform shape%
