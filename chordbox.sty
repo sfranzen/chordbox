@@ -189,7 +189,7 @@
         \foreach \b in {#4} {
             \pgfkeys{@start barre=true, @fretnum=\b}
             \foreach[count=\s] \f in {#3} {
-                \ifnum\pdfmatch{\f}{^\b}=1
+                \if\f\b
                     \ifcb@startbarre
                         \coordinate (start) at (\s\fretnum);
                         \global\cb@startbarrefalse
