@@ -47,17 +47,73 @@
     text on node/fingering/.code={\def\cb@textonnode{1}},
     text on node/pitch/.code={\def\cb@textonnode{2}},
     text on node/none,
+    % Symbols for pitch notation
+    flat symbol/.initial=\flat,
+    sharp symbol/.initial=\sharp,
     % Pitch name settings; arrays only seem to work with TeX macros
     pitch names/.store in=\cb@pitchnames,
     pitch names={"A","A\#","B","C","C\#","D","D\#","E","F","F\#","G","G\#"},
     tuning/.store in=\cb@tuning,
     tuning={"E","A","D","G","B","E"},
+    % The base fret of a given chord box
+    @basefret/.initial=1,
+    % Calculate the given fret position #1, corrected for the base fret
+    @fretnum/.code=\pgfmathtruncatemacro{\fretnum}{%
+        1 + #1 - \pgfkeysvalueof{/chordbox/@basefret}
+    },
+    % Whether the barre has yet to be started
+    @start barre/.is if=cb@startbarre,
+    % Find and typeset pitch of string number #1 at fret number #2
+    @typeset pitch/.code 2 args={
+        \pgfmathparse{{\cb@tuning}[#1-1]}
+        \ifnum#2=0
+            \pgfkeys{@replace symbols=\pgfmathresult}
+        \else
+            \foreach \p in {0,...,11} {%
+                \pgfmathsetmacro{\stringpitch}{{\cb@pitchnames}[\p]}%
+                \if\stringpitch\pgfmathresult
+                    \pgfmathparse{{\cb@pitchnames}[mod(\p + #2, 12)]}
+                    \pgfkeys{@replace symbols=\pgfmathresult}%
+                    \breakforeach
+                \fi
+            }
+        \fi
+    },
+    % Replace pitch text with math symbols
+    @replace symbols/.code={%
+        \def\#{\ensuremath{\pgfkeysvalueof{/chordbox/sharp symbol}}}%
+        \StrSubstitute{#1}{b}{%
+            \ensuremath{\pgfkeysvalueof{/chordbox/flat symbol}}%
+        }
+    }
+}
+
+% Define tikz drawing styles. The muted string symbol size is slightly smaller
+% to make it visually similar to the open symbol. Both are also placed above
+% their given coordinate for better separation from the box.
+\tikzset{
+    chordbox/.style={scale=0.25},
+    chordbox/.value forbidden,
+    fret node text/.style={font=\Large\bfseries,text=white},
+    fret node text/.value forbidden,
+    pitch text below/.style={font=\tiny},
+    string/.is choice,
+    string/base/.style={%
+        circle, draw, inner sep=0, minimum size=20, transform shape%
+    },
+    string/fretted/.style={string/base, fill},
+    string/open/.style={string/base, above},
+    string/muted/.style={string/open, cross out, minimum size=19}
+}
+
+% Environment with parts common to both commands
+\newenvironment{chordboxenv}[3]{%
+    \pgfqkeys{/chordbox}{@basefret={#1}, numfrets/.get=\numfrets}
+    \pgfqkeys{}{.search also=/chordbox}
     % The code that draws the chord box. Argument #1 specifies the base fret
     % (>1) of the chord box, #2 is the chord name and #3 the comma-separated
     % list of finger positions, e.g. {x,0,2:2,2:3,1:1,0}.
-    @draw/.code n args={3}{%
-        \pgfkeys{.search also=/chordbox, @basefret={#1}}
-        \pgfqkeys{/chordbox}{numfrets/.get=\numfrets}
+    \begin{tikzpicture}[chordbox]%
         % Put coordinates at finger positions and above the frets (index 0),
         % store string count, then draw the string grid and decorations
         \foreach[count=\n] \fretposition in {#3} {
@@ -113,84 +169,31 @@
                 \node[string=muted] at (\s0) {};
             \fi
         }
-    },
-    % The base fret of a given chord box
-    @basefret/.initial=1,
-    % Calculate the given fret position #1, corrected for the base fret
-    @fretnum/.code=\pgfmathtruncatemacro{\fretnum}{%
-        1 + #1 - \pgfkeysvalueof{/chordbox/@basefret}
-    },
-    % Whether the barre has yet to be started
-    @start barre/.is if=cb@startbarre,
-    % Symbols for pitch notation
-    flat symbol/.initial=\flat,
-    sharp symbol/.initial=\sharp,
-    % Find and typeset pitch of string number #1 at fret number #2
-    @typeset pitch/.code 2 args={
-        \pgfmathparse{{\cb@tuning}[#1-1]}
-        \ifnum#2=0
-            \pgfkeys{@replace symbols=\pgfmathresult}
-        \else
-            \foreach \p in {0,...,11} {%
-                \pgfmathsetmacro{\stringpitch}{{\cb@pitchnames}[\p]}%
-                \if\stringpitch\pgfmathresult
-                    \pgfmathparse{{\cb@pitchnames}[mod(\p + #2, 12)]}
-                    \pgfkeys{@replace symbols=\pgfmathresult}%
-                    \breakforeach
-                \fi
-            }
-        \fi
-    },
-    % Replace pitch text with math symbols
-    @replace symbols/.code={%
-        \def\#{\ensuremath{\pgfkeysvalueof{/chordbox/sharp symbol}}}%
-        \StrSubstitute{#1}{b}{%
-            \ensuremath{\pgfkeysvalueof{/chordbox/flat symbol}}%
-        }
-    }
-}
-
-% Define tikz drawing styles. The muted string symbol size is slightly smaller
-% to make it visually similar to the open symbol. Both are also placed above
-% their given coordinate for better separation from the box.
-\tikzset{
-    chordbox/.style={scale=0.25},
-    chordbox/.value forbidden,
-    fret node text/.style={font=\Large\bfseries,text=white},
-    fret node text/.value forbidden,
-    pitch text below/.style={font=\tiny},
-    string/.is choice,
-    string/base/.style={%
-        circle, draw, inner sep=0, minimum size=20, transform shape%
-    },
-    string/fretted/.style={string/base, fill},
-    string/open/.style={string/base, above},
-    string/muted/.style={string/open, cross out, minimum size=19}
+}{%
+    \end{tikzpicture}
 }
 
 % Draw a chord box without barres, for example:
 %   \chordbox{Am}{x,0,2,2,1,0}
 %   \chordbox[5]{A}{5,7,7,6,5,5}
 \providecommand{\chordbox}[3][1]{%
-    \begin{tikzpicture}[chordbox]
-        \pgfqkeys{/chordbox}{@draw={#1}{#2}{#3}}
-    \end{tikzpicture}
+    \begin{chordboxenv}{#1}{#2}{#3}
+    \end{chordboxenv}
 }
 
 % Draw a chord box for a barre chord. Extra argument for the fret number(s)
 % whose notes should be barred, for example:
 %   \bchordbox[3]{C}{x,3,5,5,5,3}{3,5}
 \providecommand{\bchordbox}[4][1]{%
-    \begin{tikzpicture}[chordbox]
-        \pgfqkeys{/chordbox}{@draw={#1}{#2}{#3}}
+    \begin{chordboxenv}{#1}{#2}{#3}
         \foreach \b in {#4} {
             \pgfkeys{@start barre=true, @fretnum=\b}
             \foreach[count=\s] \f in {#3} {
-                \ifnum\pdfmatch{\f}{^\b}=1%
-                    \ifcb@startbarre%
+                \ifnum\pdfmatch{\f}{^\b}=1
+                    \ifcb@startbarre
                         \coordinate (start) at (\s\fretnum);
                         \global\cb@startbarrefalse
-                    \else%
+                    \else
                         \coordinate (end) at (\s\fretnum);
                     \fi
                 \fi
@@ -198,7 +201,7 @@
             \scoped[on background layer]
                 \pgfkeys{draw barre={start}{end}};
         }
-    \end{tikzpicture}
+    \end{chordboxenv}
 }
 
 \endinput
