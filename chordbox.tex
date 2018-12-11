@@ -38,7 +38,6 @@
 	pdfauthor={Steven Franzen}
 }
 \setkomafont{descriptionlabel}{\ttfamily\color{red}}
-\tikzset{chordbox/.append style={baseline}}
 
 \begin{filecontents}{chordbox.bib}
 @software{leadsheets,
@@ -246,9 +245,34 @@ Result & \pgfkeys{/chordbox/text below=pitch}
 \end{tabular}
 \par\end{center}
 
-Pitch names may include accidentals, so underneath the chord box they
-are displayed at \texttt{\textbackslash scriptsize} to avoid overlapping
-at the default picture scale.
+Chords may of course feature accidentals on some or all of their notes,
+depending on their associated musical key. Typesetting such pitches
+clearly in limited space is more challenging than just single characters,
+such as finger positions. With \TikZ{}, text is most conveniently
+positioned using so-called \emph{nodes}, which can also be scaled
+to display their contents at any size. This leads to the following
+two possible choices:
+\begin{enumerate}
+\item Scale the nodes to the chord box, so they are always as large as possible
+without overlapping;
+\item Do not scale the nodes, but choose a fixed font size for the text,
+small enough to avoid overlap at the chosen scale.
+\end{enumerate}
+The first option has the advantage that overlap is precluded entirely,
+but the node text is scaled as well and will therefore need to be
+changed to a size near that of the unscaled node. Additionally, the
+scaling operation is a purely graphical transformation, which yields
+worse results than selecting a similar font size in the first place.
+This is because a well-designed font has different (namely slightly
+thicker) glyphs for smaller sizes to maintain readability. The second
+option instead has the disadvantage that a font size must be chosen
+manually and calibrated to the size of the chord boxes one wishes
+to render. However, because documents will not usually contain chord
+boxes of many different sizes, I consider this to be a minor point
+and have, at least for now, chosen the second option. The font size
+initially configured specifically for pitch names below the strings
+is \texttt{\textbackslash tiny}, which should produce readable results
+even for the default chord box size.
 
 \subsection{The \texttt{\textbackslash bchordbox} command}
 
@@ -298,16 +322,32 @@ shape} options to be supplied.}.
 Because these keys are all stored in the \texttt{/tikz} path, it is
 most convenient to change them using the \texttt{\textbackslash tikzset}
 command, for example \texttt{\textbackslash tikzset\{chordbox/.style=\{scale=0.4,
-thick\}\}}.
+thick\}\}}. Setting options like this through the \texttt{.style}
+\emph{key handler}, as it is called, replaces any previous contents.
+Other handlers, like \texttt{.prefix style} and \texttt{.append style},
+can be used to insert additional keys before or after the existing
+style, respectively. For example, calling \texttt{\textbackslash tikzset\{chordbox/.append
+style=\{scale=2\}\}} results in an effective \texttt{chordbox} style
+of \texttt{\{baseline, scale=0.5\}}, because the \texttt{scale} factor
+was set twice. These are special in that multiple values are multiplied
+together, whereas for most other keys only the last occurrence applies.
 \begin{description}
-\item [{/tikz/chordbox}] \hfill{}(style, initially \texttt{\{scale=0.25\}})\\
+\item [{/tikz/chordbox}] \hfill{}(style, initially \texttt{\{baseline,
+scale=0.25\}})\\
 This style is applied to every \texttt{\{tikzpicture\}} environment
-produced by this package.
+produced by this package. The \texttt{baseline} key sets the base
+line of the picture at a height of 0 pt, which is the top of the grid
+and the bottom of the nut (if drawn). It ensures that multiple chord
+boxes in a row align properly.
 \item [{/tikz/fret~node~text}] \hfill{}(style, initially \texttt{\{font=\textbackslash Large\textbackslash bfseries,text=white\}})\\
 This style is applied to text drawn on fretted or open string nodes,
 with the colour switched to black for the latter. It aims to make
 the text as clear and as big as possible without increasing the node
 size, which will occur if the text is too tall or wide.
+\item [{/tikz/pitch~text~below}] \hfill{}(style, initially \texttt{\{font=\textbackslash tiny\}})\\
+This affects only pitch names typeset below the chord box. The initial
+setting is \texttt{\textbackslash tiny} to keep neighbouring notes
+with accidentals from overlapping each other at the default scale.
 \end{description}
 The rest of the styles define the three symbol shapes used for the
 fretted (\tikz[chordbox,above]\coordinate[string=fretted];), open
