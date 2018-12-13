@@ -61,6 +61,20 @@
   	version = {1.20},
   	date = {2008-02-03},
 }
+@software{xifthen,
+ 	author = {Josselin Noirel},
+  	title = {xifthen},
+  	url = {https://ctan.org/pkg/xifthen/},
+  	version = {1.4.0},
+  	date = {2015-11-05},
+}
+@software{xstring,
+ 	author = {Christian Tellechea},
+  	title = {xstring},
+  	url = {https://ctan.org/pkg/xstring/},
+  	version = {1.7c},
+  	date = {2013-10-13},
+}
 @manual{pgfmanual,
    author    = {Till Tantau},
    title     = {The TikZ and PGF Packages},
@@ -100,9 +114,38 @@ For the second part I found that there were only two relevant existing
 packages: \texttt{guitarchordschemes}\autocite{guitarchordschemes}
 and \texttt{gchords}\autocite{gchords}. Neither of these achieved
 exactly what I wanted, so this package is my own attempt at providing
-that tool. It is a short collection of \TikZ{} code snippets, wrapped
-in two \LaTeX{} commands that are easy to use, with several options
-available to customise their output.
+that tool.
+
+Note that I am far from a \TeX{} guru; I know a bit of \LaTeX{} and
+also have some familiarity with \TikZ{}, so I have gratefully used
+the higher level interfaces provided by said package as well as \texttt{xifthen}\autocite{xifthen}
+and \texttt{xstring}\autocite{xstring} for inspecting arguments.
+The \noun{pgf}/\TikZ{} packages provide a powerful and versatile
+framework for creating vector graphics using \LaTeX{} commands paired
+with a special drawing syntax. One advantage of this is that you can
+fully integrate graphics into your document that will always look
+great: they will use the document fonts and can be rendered at any
+size you desire, avoiding some issues associated with the use of external
+images. This does not come without a cost, however; although the syntax
+introduced by \TikZ{} is concise and easy to read, composing images
+will require some thought, multiple commands and adjustments and can
+be labour-intensive. Also, there is simply so much functionality that
+the official manual\autocite{pgfmanual} currently spans almost 1200
+pages of dense, though amply illustrated information.
+
+The main aim of the present package is therefore to provide a way
+of typesetting chord diagrams using \TikZ{}, while sparing the user
+from the need to plough through its documentation to learn the required
+drawing syntax. It does this by defining two commands that require
+only a few arguments and encapsulate the necessary drawing instructions.
+Their basic usage is introduced in Section \ref{sec:Usage}, along
+with examples illustrating the various possibilities. Further information
+needed by the drawing algorithm is stored using \noun{pgf}/\TikZ{}'
+native key-value management system, which also makes it quite easy
+to expose settings for modification by the user, allowing you to influence
+the appearance of the resulting chord boxes. These are documented
+in Section \ref{sec:Settings}, with some examples of the commands
+you can use to change them.
 
 \subsection{Loading the package}
 
@@ -124,7 +167,7 @@ and version 1.3 or later is part of all distributions of \LaTeX{} version
 Chordbox has the \noun{lppl} maintenance status `maintained'. The
 Current Maintainer of chordbox is Steven Franzen.
 
-\section{Usage}
+\section{Usage\label{sec:Usage}}
 
 The package provides two similar commands, \texttt{\textbackslash chordbox}
 and \texttt{\textbackslash bchordbox}. The latter extends the former
@@ -289,7 +332,7 @@ and \texttt{\textbackslash bchordbox{[}3{]}\{C\}\{x,3,5,5,5,3\}\{3,5\}}:
 
 \bchordbox{Bm^7}{x,2,4,2,3,2}{2} \bchordbox[3]{C}{x,3,5,5,5,3}{3,5}
 
-\section{Settings}
+\section{Settings\label{sec:Settings}}
 
 Because \texttt{chordbox} relies on \noun{pgf}/\TikZ{} for drawing,
 it makes sense to use the powerful \noun{pgf} key management system
