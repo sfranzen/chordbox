@@ -38,7 +38,12 @@
 	pdfauthor={Steven Franzen}
 }
 \setkomafont{descriptionlabel}{\ttfamily\color{red}}
-
+\makeatletter
+\newcommand\namedlabel[2]{\begingroup
+   \def\@currentlabel{#2}%
+   \label{#1}\endgroup
+}
+\makeatother
 \begin{filecontents}{chordbox.bib}
 @software{leadsheets,
  	author = {Clemens Niederberger},
@@ -211,7 +216,7 @@ Ukulele & 5-string banjo & 6-string guitar\tabularnewline
 \par\end{center}
 
 The number of frets drawn is initially 4, but this can be changed
-through the configuration key \texttt{\hyperref[key:numfrets]{/chordbox/numfrets}}.
+through the configuration key \texttt{\ref{key:numfrets}}.
 
 As mentioned, you can optionally provide fingering information for
 a chord, which is particularly useful for writing chord charts and
@@ -220,12 +225,11 @@ scaled to fit inside it and the default scale is small, \texttt{chordbox}
 is initially configured to put this text below the strings, where
 it can be rendered at a larger size. However, the other option may
 be more appealing for larger diagrams, so both options can be used,
-see \texttt{}\texttt{\hyperref[key:textbelow]{/chordbox/text below}}
-and \texttt{\hyperref[key:textonnode]{/chordbox/text on node}}. They
-are illustrated below, where the letter T is used for the thumb and
-the digits for the other fingers, starting at 1 for the index finger.
-The larger chord box on the right has been given a scale of 2.5 times
-the default.
+see \texttt{\ref{key:textbelow}} and \texttt{\ref{key:textonnode}}.
+They are illustrated below, where the letter T is used for the thumb
+and the digits for the other fingers, starting at 1 for the index
+finger. The larger chord box on the right has been given a scale of
+2.5 times the default.
 \begin{center}
 \begin{tabular}[t]{cc}
 \multicolumn{2}{c}{\texttt{\small{}\textbackslash chordbox\{F\}\{1:T,3:3,3:4,2:2,1:1,x\}}}\tabularnewline
@@ -266,7 +270,7 @@ As can be seen, the nut is not drawn in these cases.
 Finally, \texttt{chordbox} can also display the pitch of each note
 in a chord, although the default is not to. The pitches do not need
 to be specified manually, but are determined from the fret positions
-given to the command and the configured tuning (\texttt{\hyperref[key:tuning]{/chordbox/tuning}}).
+given to the command and the configured tuning (\texttt{\ref{key:tuning}}).
 Just like fingering information, you may choose to display it inside
 the symbols or underneath the chord box, or combine both types of
 information:
@@ -422,7 +426,7 @@ more than one of these settings at once, it is shorter to issue a
 command like the following: \texttt{\textbackslash pgfkeys\{/chordbox/.cd,
 numfrets=5, fingering text=on node\}}.
 \begin{description}
-\item [{/chordbox/numfrets\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}number}}}\texttt{\textcolor{black}{\small{}\textrangle }}\label{key:numfrets}}] \hfill{}(initially
+\item [{/chordbox/numfrets\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}number}}}\texttt{\textcolor{black}{\small{}\textrangle }}\namedlabel{key:numfrets}{/chordbox/numfrets}}] \hfill{}(initially
 \texttt{4}) \\
 The number of frets drawn in each chord box.
 \item [{/chordbox/base~fret}] \hfill{}(initially \texttt{\{fr\textbackslash raisebox\{.5ex\}\{\textbackslash scriptsize\#1\}})\\
@@ -435,10 +439,10 @@ The next two keys govern the placement of extra information in the
 chord box. In both cases, the \texttt{fingering} text is only displayed
 if actually present in the input.
 \begin{description}
-\item [{/chordbox/text~below\texttt{\textcolor{black}{\small{}=none|fingering|pitch}}\label{key:textbelow}}] \hfill{}(initially
+\item [{/chordbox/text~below\texttt{\textcolor{black}{\small{}=none|fingering|pitch}}\namedlabel{key:textbelow}{/chordbox/text below}}] \hfill{}(initially
 \texttt{fingering})\\
 Selects what to display below each string.
-\item [{/chordbox/text~on~node\texttt{\textcolor{black}{\small{}=none|fingering|pitch}}\label{key:textonnode}}] \hfill{}(initially
+\item [{/chordbox/text~on~node\texttt{\textcolor{black}{\small{}=none|fingering|pitch}}\namedlabel{key:textonnode}{/chordbox/text on node}}] \hfill{}(initially
 \texttt{none})\\
 Selects what to display inside the string symbols.
 \end{description}
@@ -455,7 +459,7 @@ accidentals should be specified as \texttt{b} (flat) or \texttt{\textbackslash\#
 \texttt{\{\textquotedbl A\textquotedbl ,\textquotedbl A\textbackslash\#\textquotedbl ,\textquotedbl B\textquotedbl ,\textquotedbl C\textquotedbl ,\textquotedbl C\textbackslash\#\textquotedbl ,\LyXZeroWidthSpace\textquotedbl D\textquotedbl ,\textquotedbl D\textbackslash\#\textquotedbl ,\textquotedbl E\textquotedbl ,\textquotedbl F\textquotedbl ,\textquotedbl F\textbackslash\#\textquotedbl ,\textquotedbl G\textquotedbl ,\textquotedbl G\textbackslash\#\textquotedbl\}})\\
 The names of the pitches to be used for display. The list need not
 start at A, but it must contain twelve sequential semitones.
-\item [{/chordbox/tuning\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}list~of~pitches}}}\texttt{\textcolor{black}{\small{}\textrangle }}\label{key:tuning}}] \hfill{}(initially
+\item [{/chordbox/tuning\texttt{\textcolor{black}{\small{}=\textlangle }}\texttt{\textcolor{black}{\emph{\small{}list~of~pitches}}}\texttt{\textcolor{black}{\small{}\textrangle }}\namedlabel{key:tuning}{/chordbox/tuning}}] \hfill{}(initially
 \texttt{\{"E","A","D","G","B","E"\}})\\
 The tuning of the instrument for which chord boxes are to be drawn.
 It is used to determine the pitches of the chord and must consist
