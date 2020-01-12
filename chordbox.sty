@@ -117,19 +117,20 @@
         % Put coordinates at finger positions and above the frets (index 0),
         % store string count, then draw the string grid and decorations
         \foreach[count=\n] \fretposition in {#3} {
+            \global\let\chordbox@n\n
             \foreach \fret in {0,...,\numfrets}
                 \coordinate (\n\fret) at (\n - 1, 0.5 - \fret);
             % Extra coordinate for text below each string
             \coordinate (\n) at (\n - 1, -\numfrets);
         }
-        \draw grid (\n - 1, -\numfrets);
+        \draw grid (\chordbox@n - 1, -\numfrets);
         \ifthenelse{\isempty{#1}\or#1<2}{% Draw the "nut"
-            \fill rectangle (\n - 1, .2);
+            \fill rectangle (\chordbox@n - 1, .2);
         }{% Draw the position indicator
             \node[left] at (11) {\pgfkeys{base fret={#1}}};
         }
         % Center chord name over strings
-        \pgfmathparse{0.5 * (\n - 1)}
+        \pgfmathparse{0.5 * (\chordbox@n - 1)}
         \node[above] at (\pgfmathresult, 1.25) {\pgfkeys{name={#2}}};
         % Draw the string symbols according to argument #3
         \foreach[count=\s] \fret in {#3} {
